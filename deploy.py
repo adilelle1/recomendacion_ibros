@@ -15,7 +15,7 @@ import plotly.graph_objects as go
 
 
 #1. Import
-df = pd.read_csv('data\book_data_procesado.csv')
+df = pd.read_csv('book_data_procesado.csv',index_col=[0])
 
 #2. Titulo de pagina
 st.set_page_config(page_title="Sistema de recomendación de libros")
