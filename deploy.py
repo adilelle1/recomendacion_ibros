@@ -10,12 +10,13 @@ import plotly.express as px
 from sklearn.preprocessing import OneHotEncoder
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import plotly.colors as colors
 
 
 
 
 #1. Import
-df = pd.read_csv('book_data_procesado.csv',index_col=[0])
+data = pd.read_csv('books_limpio.csv',index_col=[0])
 
 #2. Titulo de pagina
 st.set_page_config(page_title="Sistema de recomendación de libros")
@@ -35,7 +36,7 @@ with st.sidebar:
 if selected == 'Home':
     st.title('Sistema de recomendación de libros')
     st.write('Encontramos tu próximo libro favorito.')
-    st.image('book.jpg')
+    st.image('libro_sobre_cama.jpg')
 
     st.header('Problemática y objetivos')
     st.write('Ante la abrumadora cantidad de información que se puede encontrar hoy en día en los medios digitales, puede sentirse algo complicado encontrar qué libro leer.')
@@ -44,15 +45,13 @@ if selected == 'Home':
     st.header('Dataset')
     st.write('El conjunto de datos utilizado, es un subset de datos de la base de la página web [Goodreads](https://www.goodreads.com/).')
 
-    st.write('Para este proyecto se utiliza una base de 9.000 libros y 981.756 puntajes que realizaron usuarios acerca de los mismos.')
+    st.write('Para este proyecto se utiliza una base de 6.000 libros y 981.756 puntuaciones que realizaron usuarios acerca de los mismos.')
     st.write("A continuación podemos ver cómo se compone el set de datos")
-    st.dataframe(df.head())
+    st.dataframe(data.head())
 
     st.subheader("\n Descripcion de columnas.")
     st.markdown("\n **id** :  Id de la tabla.")
     st.markdown("\n **book_id** :  Id del libro, se utiliza para conectar con tabla de ratings.")
-    st.markdown("\n **best_book_id** :  ?")
-    st.markdown("\n **work_id** :  ?")
     st.markdown("\n **books_count** :  Cantidad de libros. ?")
     st.markdown("\n **isbn** :  Id de Goodreads.")
     st.markdown("\n **isbn13** :  Id de Goodreads.")
@@ -63,18 +62,19 @@ if selected == 'Home':
     st.markdown("\n **language_code** :  Código de idioma en el que fue escrito el libro.")
     st.markdown("\n **average_rating** :  Puntuación promedio en Goodreads.")
     st.markdown("\n **ratings_count** :  Cantidad de puntuaciones en Goodreads.")
-    st.markdown("\n **work_ratings_count** :  ?")
-    st.markdown("\n **work_text_reviews_count** :  ?")
     st.markdown("\n **ratings_1** :  Cantidad de puntuaciones de 1 sobre 5.")
     st.markdown("\n **ratings_2** :  Cantidad de puntuaciones de 2 sobre 5.")
     st.markdown("\n **ratings_3** :  Cantidad de puntuaciones de 3 sobre 5.")
     st.markdown("\n **ratings_4** :  Cantidad de puntuaciones de 4 sobre 5.")
     st.markdown("\n **ratings_5** :  Cantidad de puntuaciones de 5 sobre 5.")
     st.markdown("\n **description** :  Descripción del libro.")
-    st.markdown("\n **genre** :  Género/s del libro.")
     st.markdown("\n **pages** :  Cantidad de páginas del libro.")
-
-
+    st.markdown("\n **genre** :  Género/s del libro.")
+    st.markdown("\n **genre_ordenado** :  Géneros del libro ordenados por género más repetido en el dataset.")
+    st.markdown("\n **genre_1** :  Primer género del libro (por importancia en las repeticiones en el dataset)")
+    st.markdown("\n **genre_2** :  Segundo género del libro (por importancia en las repeticiones en el dataset).")
+    st.markdown("\n **genre_3** :  Tercer género del libro (por importancia en las repeticiones en el dataset).")
+    st.markdown("\n **genre_4** :  Cuarto género del libro (por importancia en las repeticiones en el dataset).")
 
 #####################################################################################################################################
 
@@ -83,21 +83,86 @@ if selected == 'Home':
 elif selected == 'Data visualization':
     st.title('Data visualization')
 
-    #histplot
-    col_histplot = st.sidebar.selectbox('Columna - Histplot',['country','location_type', 'age_of_respondent','household_size','relationship_with_head','marital_status','education_level','job_type'])
-    def graf_hist():
-        fig = px.histogram(df, x= col_histplot, color=col_histplot, color_discrete_sequence=px.colors.qualitative.Set2).update_xaxes(categoryorder='total descending')
-        fig.update_layout(
-            autosize=False,
-            width=900,
-            height=600,
-            bargap= 0.2,
-            yaxis = dict(tickfont = dict(size=18)),
-            xaxis = dict(tickfont = dict(size=18)),
-            showlegend=False,
-            )
+    color_palette = colors.qualitative.Light24
+
+    # libros por anio
+    def create_books_per_year_chart():
+        books_per_year = data.loc[data['original_publication_year'] > 1800, 'original_publication_year'].value_counts().sort_index().reset_index()
+        books_per_year.columns = ['Año', 'Cantidad']
+
+        fig = px.line(books_per_year, x='Año', y='Cantidad', title='<b>Libros por año</b>')
+        fig.update_xaxes(title='Año')
+        fig.update_yaxes(title='Cantidad de libros')
+
         st.plotly_chart(fig)
+    
+    # Libros mejor puntuados
+    def create_top_rated_books_chart():
+        top_10_most_rated_books = data.sort_values('ratings_count', ascending=False).head(10)
+        fig = go.Figure(data=[go.Bar(
+            x=top_10_most_rated_books['ratings_count'],
+            y=top_10_most_rated_books['title'],
+            orientation='h',
+            marker=dict(color=color_palette))])
+
+        fig.update_layout(
+            title="<b>Top 10 libros con más puntuaciones</b>",
+            xaxis_title="Número de Valoraciones",
+            barmode='stack',
+            yaxis_categoryorder='total ascending')
         
+        st.plotly_chart(fig)
+
+    # Puntuacion promedio por genero
+    def create_average_rating_by_genre_chart():
+        datos_subplot_1 = data.groupby('genero_1')['average_rating'].mean().reset_index()
+        fig = go.Figure(data=[go.Bar(x=datos_subplot_1['genero_1'], y=datos_subplot_1['average_rating'], marker=dict(color=color_palette))])
+        fig.update_layout(
+            title="<b>Calificación promedio por género</b>",
+            xaxis_title="Género",
+            yaxis_title="Calificación Promedio"
+        )
+        st.plotly_chart(fig)
+
+    # Paginas promedio por genero
+    def create_average_pages_by_genre_chart():
+        datos_subplot_2 = data.groupby('genero_1')['pages'].mean().reset_index()
+        fig = go.Figure(data=[go.Bar(x=datos_subplot_2['genero_1'], y=datos_subplot_2['pages'], marker=dict(color=color_palette))])
+
+        fig.update_layout(
+            title="<b>Número de páginas promedio por género</b>",
+            xaxis_title="Género",
+            yaxis_title="Promedio de Páginas"
+        )
+        st.plotly_chart(fig)
+
+    def puntuacion_autores_por_genero(genre):
+        filtered_data = data[(data['genero_1'] == genre) & (~data['authors'].str.contains(','))]
+        average_ratings = filtered_data.groupby('authors')['average_rating'].mean().reset_index()
+        top_20_authors = average_ratings.nlargest(10, 'average_rating')
+
+        fig = px.bar(top_20_authors, x='authors', y='average_rating', orientation='v',
+                    text=top_20_authors['average_rating'].round(2),
+                    labels={'average_rating': 'Calificación promedio'},
+                    title=f'<b>Top 10 Autores con mejor puntuación en el Género: {genre}</b>',
+                    color='authors', color_discrete_sequence=color_palette)
+
+        fig.update_layout(showlegend=False)
+        fig.update_xaxes(automargin=True, title=None)
+        st.plotly_chart(fig)
+
+    if __name__ == '__main__':
+        st.header('Libros por año')
+        create_books_per_year_chart()
+        st.header('Mejor puntuados')
+        create_top_rated_books_chart()
+        st.header('Paginas promedio por genero')
+        create_average_pages_by_genre_chart()
+        st.header('Puntuación promedio por genero')
+        create_average_rating_by_genre_chart()
+        st.header('Top 10 autores')
+        puntuacion_autores_por_genero()
+
         st.write('---')
         st.header('Conclusiones del análisis')
         st.markdown('Al realizar el análisis de distribuciones y correlación, fue posible observar que:')
