@@ -36,7 +36,7 @@ with st.sidebar:
 if selected == 'Home':
     st.title('Sistema de recomendación de libros')
     st.write('Encontramos tu próximo libro favorito.')
-    st.image('libro_sobre_cama.png', width=400)
+    st.image('libro_sobre_cama.png', width=800)
 
     st.header('Problemática y objetivos')
     st.write('Ante la abrumadora cantidad de información que se puede encontrar hoy en día en los medios digitales, puede sentirse algo complicado encontrar qué libro leer.')
