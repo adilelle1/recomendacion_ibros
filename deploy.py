@@ -141,7 +141,7 @@ elif selected == 'Data visualization':
         filtered_data = data[(data['genero_1'] == genre) & (~data['authors'].str.contains(','))]
         average_ratings = filtered_data.groupby('authors')['average_rating'].mean().reset_index()
         top_20_authors = average_ratings.nlargest(10, 'average_rating')
-        fig = px.bar(top_20_authors, x='authors', y='average_rating', orientation='v',
+        fig = px.bar(top_20_authors, x='average_rating', y='authors', orientation='h',
                     text=top_20_authors['average_rating'].round(2),
                     labels={'average_rating': 'Calificación promedio'},
                     title=f'<b>Top 10 Autores con mejor puntuación en el Género: {genre}</b>',
