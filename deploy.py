@@ -36,7 +36,7 @@ with st.sidebar:
 if selected == 'Home':
     st.title('Sistema de recomendación de libros')
     st.write('Encontramos tu próximo libro favorito.')
-    st.image('libro_sobre_cama.png')
+    st.image('libro_sobre_cama.png', width=400)
 
     st.header('Problemática y objetivos')
     st.write('Ante la abrumadora cantidad de información que se puede encontrar hoy en día en los medios digitales, puede sentirse algo complicado encontrar qué libro leer.')
@@ -138,13 +138,12 @@ elif selected == 'Data visualization':
 
     # top 10 autores por genero 
     genres = data['genero_1'].unique()
-    selected_genre = st.selectbox('Selecciona un género', genres)
+    selected_genre = st.sidebar.selectbox('Selecciona un género', genres)
     def puntuacion_autores_por_genero(genre):
         filtered_data = data[(data['genero_1'] == genre) & (~data['authors'].str.contains(','))]
         average_ratings = filtered_data.groupby('authors')['average_rating'].mean().reset_index()
         top_20_authors = average_ratings.nlargest(10, 'average_rating')
-
-        fig = px.bar(top_20_authors, x='authors', y='average_rating', orientation='h',
+        fig = px.bar(top_20_authors, x='authors', y='average_rating', orientation='v',
                     text=top_20_authors['average_rating'].round(2),
                     labels={'average_rating': 'Calificación promedio'},
                     title=f'<b>Top 10 Autores con mejor puntuación en el Género: {genre}</b>',
