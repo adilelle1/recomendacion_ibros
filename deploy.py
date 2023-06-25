@@ -16,7 +16,7 @@ import plotly.colors as colors
 
 
 #1. Import
-data = pd.read_csv('books_limpio.csv',index_col=[0])
+data = pd.read_csv('data/books_limpio.csv',index_col=[0])
 
 #2. Titulo de pagina
 st.set_page_config(page_title="Sistema de recomendación de libros")
@@ -162,11 +162,6 @@ elif selected == 'Data visualization':
         create_average_rating_by_genre_chart()
         st.header('Top 10 autores')
         puntuacion_autores_por_genero()
-
-        st.write('---')
-        st.header('Conclusiones del análisis')
-        st.markdown('Al realizar el análisis de distribuciones y correlación, fue posible observar que:')
-        st.write('---')
 
         st.markdown('''
         <style>
