@@ -116,32 +116,35 @@ elif selected == 'Data visualization':
     # Puntuacion promedio por genero
     def create_average_rating_by_genre_chart():
         datos_subplot_1 = data.groupby('genero_1')['average_rating'].mean().reset_index()
-        fig = go.Figure(data=[go.Bar(x=datos_subplot_1['genero_1'], y=datos_subplot_1['average_rating'], marker=dict(color=color_palette))])
+        fig = go.Figure(data=[go.Bar(x=datos_subplot_1['genero_1'], y=datos_subplot_1['average_rating'], marker=dict(color=color_palette), orientation='h')])
         fig.update_layout(
-            title="<b>Calificación promedio por género</b>",
+            title="<b>Puntuación promedio por género</b>",
             xaxis_title="Género",
-            yaxis_title="Calificación Promedio"
+            yaxis_title="Puntuación promedio"
         )
         st.plotly_chart(fig)
 
     # Paginas promedio por genero
     def create_average_pages_by_genre_chart():
         datos_subplot_2 = data.groupby('genero_1')['pages'].mean().reset_index()
-        fig = go.Figure(data=[go.Bar(x=datos_subplot_2['genero_1'], y=datos_subplot_2['pages'], marker=dict(color=color_palette))])
+        fig = go.Figure(data=[go.Bar(x=datos_subplot_2['genero_1'], y=datos_subplot_2['pages'], marker=dict(color=color_palette), orientation='h')])
 
         fig.update_layout(
             title="<b>Número de páginas promedio por género</b>",
             xaxis_title="Género",
-            yaxis_title="Promedio de Páginas"
+            yaxis_title="Promedio de páginas"
         )
         st.plotly_chart(fig)
 
+    # top 10 autores por genero 
+        genres = data['genero_1'].unique()
+        selected_genre = st.selectbox('Selecciona un género', genres)
     def puntuacion_autores_por_genero(genre):
         filtered_data = data[(data['genero_1'] == genre) & (~data['authors'].str.contains(','))]
         average_ratings = filtered_data.groupby('authors')['average_rating'].mean().reset_index()
         top_20_authors = average_ratings.nlargest(10, 'average_rating')
 
-        fig = px.bar(top_20_authors, x='authors', y='average_rating', orientation='v',
+        fig = px.bar(top_20_authors, x='authors', y='average_rating', orientation='h',
                     text=top_20_authors['average_rating'].round(2),
                     labels={'average_rating': 'Calificación promedio'},
                     title=f'<b>Top 10 Autores con mejor puntuación en el Género: {genre}</b>',
