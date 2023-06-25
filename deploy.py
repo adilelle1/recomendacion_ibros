@@ -116,23 +116,21 @@ elif selected == 'Data visualization':
     # Puntuacion promedio por genero
     def create_average_rating_by_genre_chart():
         datos_subplot_1 = data.groupby('genero_1')['average_rating'].mean().reset_index()
-        fig = go.Figure(data=[go.Bar(x=datos_subplot_1['genero_1'], y=datos_subplot_1['average_rating'], marker=dict(color=color_palette), orientation='h')])
+        fig = go.Figure(data=[go.Bar(x=datos_subplot_1['average_rating'], y=datos_subplot_1['genero_1'], marker=dict(color=color_palette), orientation='h')])
         fig.update_layout(
             title="<b>Puntuación promedio por género</b>",
-            xaxis_title="Género",
-            yaxis_title="Puntuación promedio"
+            xaxis_title="Puntuación promedio"
         )
         st.plotly_chart(fig)
 
     # Paginas promedio por genero
     def create_average_pages_by_genre_chart():
         datos_subplot_2 = data.groupby('genero_1')['pages'].mean().reset_index()
-        fig = go.Figure(data=[go.Bar(x=datos_subplot_2['genero_1'], y=datos_subplot_2['pages'], marker=dict(color=color_palette), orientation='h')])
+        fig = go.Figure(data=[go.Bar(x=datos_subplot_2['pages'], y=datos_subplot_2['genero_1'], marker=dict(color=color_palette), orientation='h')])
 
         fig.update_layout(
             title="<b>Número de páginas promedio por género</b>",
-            xaxis_title="Género",
-            yaxis_title="Promedio de páginas"
+            xaxis_title="Promedio de páginas"
         )
         st.plotly_chart(fig)
 
