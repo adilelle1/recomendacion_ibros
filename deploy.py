@@ -36,7 +36,7 @@ with st.sidebar:
 if selected == 'Home':
     st.title('Sistema de recomendación de libros')
     st.write('Encontramos tu próximo libro favorito.')
-    st.image('libro_sobre_cama.jpg')
+    st.image('libro_sobre_cama.png')
 
     st.header('Problemática y objetivos')
     st.write('Ante la abrumadora cantidad de información que se puede encontrar hoy en día en los medios digitales, puede sentirse algo complicado encontrar qué libro leer.')
@@ -137,8 +137,8 @@ elif selected == 'Data visualization':
         st.plotly_chart(fig)
 
     # top 10 autores por genero 
-        genres = data['genero_1'].unique()
-        selected_genre = st.selectbox('Selecciona un género', genres)
+    genres = data['genero_1'].unique()
+    selected_genre = st.selectbox('Selecciona un género', genres)
     def puntuacion_autores_por_genero(genre):
         filtered_data = data[(data['genero_1'] == genre) & (~data['authors'].str.contains(','))]
         average_ratings = filtered_data.groupby('authors')['average_rating'].mean().reset_index()
@@ -164,7 +164,7 @@ elif selected == 'Data visualization':
         st.header('Puntuación promedio por genero')
         create_average_rating_by_genre_chart()
         st.header('Top 10 autores')
-        puntuacion_autores_por_genero()
+        puntuacion_autores_por_genero(selected_genre)
 
         st.markdown('''
         <style>
