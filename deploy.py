@@ -244,9 +244,9 @@ elif selected == 'Encontrá tu libro':
             st.write(f'Título seleccionado: {selected_book_title}')
             similar_books = find_similar_books(selected_book_title, num_similar_books=3)
             st.write('Libros similares:')
-            for i, book in enumerate(similar_books):
-                st.write(f'{i+1}. Título: {book["title"]}')
-                st.write(f'   Género 1: {book["genero_1"]}')
-                st.write(f'   Género 2: {book["genero_2"]}')
-                st.write(f'   Páginas: {book["pages"]}')
-                st.write(f'   Descripción: {book["description_en"]}')
+            for i, book in similar_books.iterrows():
+                st.write(f'{i+1}. Título: {book.title}')
+                st.write(f'   Género 1: {book.genero_1}')
+                st.write(f'   Género 2: {book.genero_2}')
+                st.write(f'   Páginas: {book.pages}')
+                st.write(f'   Descripción: {book.description_en}')
