@@ -144,6 +144,20 @@ elif selected == 'Visualizando los datos':
 
         st.plotly_chart(fig)
 
+    def create_top_rated_books_chart(genre):
+        filtered_data = data[(data['genero_1'] == genre)]
+        average_ratings = filtered_data.groupby('title')['average_rating'].mean().reset_index()
+        top_10_books = average_ratings.nlargest(10, 'average_rating')
+        fig = px.bar(top_10_books, x='average_rating', y='title', orientation='h',
+                    text=top_10_books['average_rating'].round(2),
+                    labels={'average_rating': 'Calificación promedio'},
+                    title=f'<b>Top 10 libros con mejor puntuación en el Género: {genre}</b>',
+                    color='title', color_discrete_sequence=color_palette)
+
+        fig.update_layout(showlegend=False)
+        fig.update_xaxes(automargin=True, title=None)
+        st.plotly_chart(fig)
+
 
     # top 10 autores por género 
     def puntuacion_autores_por_genero(genre):
