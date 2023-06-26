@@ -215,10 +215,10 @@ elif selected == 'Armado del modelo':
         st.write('Habiendo encontrado estas matrices, el Modelo es capaz de predecir cuál será la puntuación que cada Usuario le asignaría a cada Ítem multiplicándolas.')
         st.write('Para saber qué Modelo de Matrix Factorization utilizar, calculamos la dispersión de la matriz, que está dada por el porcentaje de puntuaciones que le faltan a dicha matriz. En este caso, el porcentaje fue del 99,82%, ')
         st.write('La dispersión puede traducirse en una mala performance del modelo. Por lo tanto, es necesario elegir un modelo que pueda manejar la escasez de interacciones entre usuarios e ítems. Es por esto que se eligió el modelo ALS. Otras ventajas de este modelo son:')
-        st.markdown('Puede incorporar restricciones y regularizaciones para evitar el sobreajuste.')
-        st.markdown('Es poco sensible a outliers.')
-        st.markdown('Es más rápido que los métodos SVD y SGD.')
-        st.markdown('Es escalable a grandes conjuntos de datos.')
+        st.markdown('- Puede incorporar restricciones y regularizaciones para evitar el sobreajuste.')
+        st.markdown('- Es poco sensible a outliers.')
+        st.markdown('- Es más rápido que los métodos SVD y SGD.')
+        st.markdown('- Es escalable a grandes conjuntos de datos.')
         st.write('La siguiente decisión a tomar para ejecutar el Modelo es la cantidad de Features (k) que se requerirán. Elegimos un k = 190, porque las matrices muy dispersas requieren un k grande. Sin embargo, sabemos que esto implica un riesgo de sobreajuste y una performance pobre.')
 
         # Recomendacion por contenido
