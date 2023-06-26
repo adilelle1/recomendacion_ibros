@@ -244,7 +244,7 @@ elif selected == 'Encontrá tu libro':
             st.write('**Libros similares:**')
             for i, book in similar_books.iterrows():
                 st.write(f'**{book.title}**')
-                st.markdown(f'\nGénero: {book.genero_1} - {book.genero_2} ')
-                st.markdown(f'\nPáginas: {book.pages}')
-                st.markdown(f'\nRating: {book.average_rating}')
+                st.markdown(f'- Género: {book.genero_1} - {book.genero_2} ')
+                st.markdown(f'- Páginas: {book.pages}')
+                st.markdown(f'- Rating: {book.average_rating}')
 
