@@ -17,7 +17,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 #1. Import
-data = pd.read_csv('data/books_limpio.csv',index_col=[0])
+data = pd.read_csv('data/books_limpio_def.csv',index_col=[0])
 data_ratings = pd.read_csv('data/ratings.csv')
 
 #2. Titulo de pagina
