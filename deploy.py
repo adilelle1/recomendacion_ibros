@@ -219,7 +219,6 @@ elif selected == 'Encontrá tu libro':
     st.title('Encontrá tu próximo libro')
     st.title("Modelo basado en colaboración")
     user_number = st.text_input("Número de usuario", "")
-    st.write("Número de usuario ingresado:", user_number)
 
     st.title("Modelo basado en contenido")
     book_titles = data['title'].unique()
@@ -233,7 +232,7 @@ elif selected == 'Encontrá tu libro':
         cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
         book_similarities = cosine_sim[book_index]
         similar_books_indices = book_similarities.argsort()[::-1][1:num_similar_books+1]
-        similar_books = data.loc[similar_books_indices, ['title', 'genero_1', 'genero_2', 'pages', 'description_en']]
+        similar_books = data.loc[similar_books_indices, ['title', 'genero_1', 'genero_2', 'pages']]
         return similar_books
 
     # Verificar si el título ingresado existe en el dataset
@@ -241,12 +240,10 @@ elif selected == 'Encontrá tu libro':
         st.warning('Por favor, ingresa un título válido.')
     else:
         if __name__ == '__main__':
-            st.write(f'Título seleccionado: {selected_book_title}')
             similar_books = find_similar_books(selected_book_title, num_similar_books=3)
             st.write('Libros similares:')
             for i, book in similar_books.iterrows():
-                st.write(f'{i+1}. Título: {book.title}')
+                st.write(f'**Título: {book.title}**')
                 st.write(f'   Género 1: {book.genero_1}')
                 st.write(f'   Género 2: {book.genero_2}')
                 st.write(f'   Páginas: {book.pages}')
-                st.write(f'   Descripción: {book.description_en}')
