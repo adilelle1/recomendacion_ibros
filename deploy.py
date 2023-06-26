@@ -17,6 +17,7 @@ import plotly.colors as colors
 
 #1. Import
 data = pd.read_csv('data/books_limpio.csv',index_col=[0])
+data_ratings = pd.read_csv('data/ratings.csv')
 
 #2. Titulo de pagina
 st.set_page_config(page_title="Sistema de recomendación de libros")
@@ -25,7 +26,7 @@ st.set_page_config(page_title="Sistema de recomendación de libros")
 with st.sidebar:
     selected = option_menu(
         menu_title='Menu',
-        options=['Home', 'Data visualization', 'Armado del modelo', 'Tu libro'],
+        options=['Home', '', 'Armado del modelo', 'Encontrá tu libro'],
     )
 
 
@@ -36,25 +37,28 @@ with st.sidebar:
 if selected == 'Home':
     st.title('Sistema de recomendación de libros')
     st.write('Encontramos tu próximo libro favorito.')
-    st.image('libro_sobre_cama.png', width=800)
+    st.image('libro_sobre_cama.png', width=900)
 
     st.header('Problemática y objetivos')
     st.write('Ante la abrumadora cantidad de información que se puede encontrar hoy en día en los medios digitales, puede sentirse algo complicado encontrar qué libro leer.')
     st.write('Por eso, buscamos desarrollar un sistema que ayude a los amantes de la literatura.')
+    st.write('En este proyecto trabajaremos desde el lugar de Goodreads, una reconocida plataforma donde los usuarios llevan registro y puntuan libros, donde creamos un nueva sistema de recomendación utilizando el historial del usuario.')
     
     st.header('Dataset')
     st.write('El conjunto de datos utilizado, es un subset de datos de la base de la página web [Goodreads](https://www.goodreads.com/).')
 
     st.write('Para este proyecto se utiliza una base de 6.000 libros y 981.756 puntuaciones que realizaron usuarios acerca de los mismos.')
-    st.write("A continuación podemos ver cómo se compone el set de datos")
+    st.write("A continuación podemos ver cómo se componen los set de datos utilizados:")
     st.dataframe(data.head())
+    st.dataframe(data_ratings.head())
 
-    st.subheader("\n Descripcion de columnas.")
-    st.markdown("\n **id** :  Id de la tabla.")
-    st.markdown("\n **book_id** :  Id del libro, se utiliza para conectar con tabla de ratings.")
+    st.subheader("\n Descripcion de las columnas.")
+    st.markdown("\n**Tabla Libros**")
+    st.markdown("\n **id** :  Número de identificación de la tabla.")
+    st.markdown("\n **book_id** :  Número de identificación del libro, se utiliza para conectar con tabla de ratings.")
     st.markdown("\n **books_count** :  Cantidad de libros. ?")
-    st.markdown("\n **isbn** :  Id de Goodreads.")
-    st.markdown("\n **isbn13** :  Id de Goodreads.")
+    st.markdown("\n **isbn** :  Número de identificación de Goodreads.")
+    st.markdown("\n **isbn13** :  Número de identificación de Goodreads.")
     st.markdown("\n **authors** :  Nombre de los autores del libro.")
     st.markdown("\n **original_publication_year** :  Año original de publicación.")
     st.markdown("\n **original_title** :  Título original del libro.")
@@ -75,6 +79,11 @@ if selected == 'Home':
     st.markdown("\n **genre_2** :  Segundo género del libro (por importancia en las repeticiones en el dataset).")
     st.markdown("\n **genre_3** :  Tercer género del libro (por importancia en las repeticiones en el dataset).")
     st.markdown("\n **genre_4** :  Cuarto género del libro (por importancia en las repeticiones en el dataset).")
+
+    st.markdown("\n**Tabla Ratings**")
+    st.markdown("\n **book_id** :  Número de identificación del libro.")
+    st.markdown("\n **user_id** :  Número de identificación del usuario.")
+    st.markdown("\n **rating** :  Puntuación del libro del 1 al 5.")
 
 #####################################################################################################################################
 
@@ -113,7 +122,7 @@ elif selected == 'Data visualization':
         
         st.plotly_chart(fig)
 
-    # Puntuacion promedio por genero
+    # Puntuacion promedio por género
     def create_average_rating_by_genre_chart():
         datos_subplot_1 = data.groupby('genero_1')['average_rating'].mean().reset_index()
         fig = go.Figure(data=[go.Bar(x=datos_subplot_1['average_rating'], y=datos_subplot_1['genero_1'], marker=dict(color=color_palette), orientation='h')])
@@ -123,7 +132,7 @@ elif selected == 'Data visualization':
         )
         st.plotly_chart(fig)
 
-    # Paginas promedio por genero
+    # Paginas promedio por género
     def create_average_pages_by_genre_chart():
         datos_subplot_2 = data.groupby('genero_1')['pages'].mean().reset_index()
         fig = go.Figure(data=[go.Bar(x=datos_subplot_2['pages'], y=datos_subplot_2['genero_1'], marker=dict(color=color_palette), orientation='h')])
@@ -134,9 +143,8 @@ elif selected == 'Data visualization':
         )
         st.plotly_chart(fig)
 
-    # top 10 autores por genero 
+    # top 10 autores por género 
     genres = data['genero_1'].unique()
-    selected_genre = st.sidebar.selectbox('Selecciona un género', genres)
     def puntuacion_autores_por_genero(genre):
         filtered_data = data[(data['genero_1'] == genre) & (~data['authors'].str.contains(','))]
         average_ratings = filtered_data.groupby('authors')['average_rating'].mean().reset_index()
@@ -156,11 +164,12 @@ elif selected == 'Data visualization':
         create_books_per_year_chart()
         st.header('Mejor puntuados')
         create_top_rated_books_chart()
-        st.header('Paginas promedio por genero')
+        st.header('Páginas promedio por género')
         create_average_pages_by_genre_chart()
-        st.header('Puntuación promedio por genero')
+        st.header('Puntuación promedio por género')
         create_average_rating_by_genre_chart()
         st.header('Top 10 autores')
+        selected_genre = st.selectbox('Selecciona un género', genres)
         puntuacion_autores_por_genero(selected_genre)
 
         st.markdown('''
@@ -200,23 +209,16 @@ elif selected == 'Armado del modelo':
 
 
 # Pagina 4 = Modelo
-elif selected == 'Tu libro':
+elif selected == 'Econtrá tu libro':
     st.title('Encontrá tu próximo libro')
+    st.image('book_gif.gif', use_column_width=True)
     def inputs():
-        st.sidebar.header('Model inputs')
-        country = st.sidebar.selectbox('Country', df.country.unique())	
-        location_type = st.sidebar.selectbox('Location type', df.location_type.unique())
-        cellphone_access = st.sidebar.selectbox('Cellphone access', df.cellphone_access.unique())
-        household_size = st.sidebar.number_input('Household size', 1) 
-        age_of_respondent = st.sidebar.number_input('Age', 16) 
-        gender_of_respondent = st.sidebar.selectbox('Gender', df.gender_of_respondent.unique())
-        relationship_with_head = st.sidebar.selectbox('Relationship with head', df.relationship_with_head.unique())
-        marital_status = st.sidebar.selectbox('Marital status', df.marital_status.unique()) 
-        education_level = st.sidebar.selectbox('Education level', df.education_level.unique())
-        job_type = st.sidebar.selectbox('Job type', df.job_type.unique()) 
-        button = st.sidebar.button('Try model!')
-        return country, location_type, cellphone_access, household_size, age_of_respondent, gender_of_respondent, relationship_with_head, marital_status, education_level, job_type, button
-
+        st.sidebar.title("Ingrese su número de usuario")
+        user_number = st.sidebar.text_input("Número de usuario", "")
+        st.sidebar.write("Número de usuario ingresado:", user_number)
+        
+        return user_number
+    
     def get_data(country, location_type, cellphone_access, household_size, age_of_respondent, gender_of_respondent, relationship_with_head, marital_status, education_level, job_type):
             data_inputs = {'country': country, 
                     'location_type': location_type, 
