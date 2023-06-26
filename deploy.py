@@ -249,4 +249,4 @@ elif selected == 'Encontrá tu libro':
                 st.write(f'   Género 1: {book["genero_1"]}')
                 st.write(f'   Género 2: {book["genero_2"]}')
                 st.write(f'   Páginas: {book["pages"]}')
-                st.write(f'   Descripción: {book["description"]}')
+                st.write(f'   Descripción: {book["description_en"]}')
