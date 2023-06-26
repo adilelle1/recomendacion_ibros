@@ -249,11 +249,13 @@ elif selected == 'Armado del modelo':
                 textos_lemmatizados = ' '.join(subconjunto['texto_lemmatizado'])
                 wordcloud = WordCloud(stopwords=palabras_comunes, background_color='white', colormap='viridis',
                                     width=800, height=400).generate(textos_lemmatizados)
-                plt.figure(figsize=(10, 6))
-                plt.imshow(wordcloud, interpolation='bilinear')
-                plt.axis('off')
-                plt.title('Nube de Palabras - Género: ' + genero)
-                plt.show()
+
+                # Convert WordCloud object to a Plotly figure
+                fig = go.Figure(data=go.Image(z=wordcloud.to_array()))
+                fig.update_layout(title='Nube de Palabras - Género: ' + genero, title_x=0.5)
+
+                # Display the Plotly chart using st.plotly_chart
+                st.plotly_chart(fig)
 
         generate_word_clouds(data)
 
