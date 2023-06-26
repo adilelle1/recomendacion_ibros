@@ -217,10 +217,10 @@ elif selected == 'Armado del modelo':
 # Pagina 4 = Modelo
 elif selected == 'Encontrá tu libro':
     st.title('Encontrá tu próximo libro')
-    st.title("Modelo basado en colaboración")
+    st.header("Modelo basado en colaboración")
     user_number = st.text_input("Número de usuario", "")
 
-    st.title("Modelo basado en contenido")
+    st.header("Modelo basado en contenido")
     book_titles = data['title'].unique()
     selected_book_title = st.text_input('Ingresa un título de libro', value='', key='book_title_input')
 
@@ -241,10 +241,10 @@ elif selected == 'Encontrá tu libro':
     else:
         if __name__ == '__main__':
             similar_books = find_similar_books(selected_book_title, num_similar_books=3)
-            st.write('<b>Libros similares:</b>')
+            st.write('**Libros similares:**')
             for i, book in similar_books.iterrows():
                 st.write(f'**{book.title}**')
-                st.write(f'\tGénero: {book.genero_1} - {book.genero_2} ')
-                st.write(f'\tPáginas: {book.pages}')
-                st.write(f'\tRating: {book.average_rating}')
+                st.markdown(f'\tGénero: {book.genero_1} - {book.genero_2} ')
+                st.markdown(f'\tPáginas: {book.pages}')
+                st.markdown(f'\tRating: {book.average_rating}')
 
