@@ -232,7 +232,7 @@ elif selected == 'Encontrá tu libro':
         cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
         book_similarities = cosine_sim[book_index]
         similar_books_indices = book_similarities.argsort()[::-1][1:num_similar_books+1]
-        similar_books = data.loc[similar_books_indices, ['title', 'genero_1', 'genero_2', 'pages']]
+        similar_books = data.loc[similar_books_indices, ['title', 'genero_1', 'genero_2', 'pages', 'average_rating']]
         return similar_books
 
     # Verificar si el título ingresado existe en el dataset
@@ -241,9 +241,10 @@ elif selected == 'Encontrá tu libro':
     else:
         if __name__ == '__main__':
             similar_books = find_similar_books(selected_book_title, num_similar_books=3)
-            st.write('Libros similares:')
+            st.write('<b>Libros similares:</b>')
             for i, book in similar_books.iterrows():
-                st.write(f'**Título: {book.title}**')
-                st.write(f'   Género 1: {book.genero_1}')
-                st.write(f'   Género 2: {book.genero_2}')
-                st.write(f'   Páginas: {book.pages}')
+                st.write(f'**{book.title}**')
+                st.write(f'\tGénero: {book.genero_1} - {book.genero_2} ')
+                st.write(f'\tPáginas: {book.pages}')
+                st.write(f'\tRating: {book.average_rating}')
+
