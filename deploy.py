@@ -209,7 +209,7 @@ elif selected == 'Armado del modelo':
 
 
 # Pagina 4 = Modelo
-elif selected == 'Econtrá tu libro':
+elif selected == 'Encontrá tu libro':
     st.title('Encontrá tu próximo libro')
     st.sidebar.title("Ingrese su número de usuario")
     user_number = st.sidebar.text_input("Número de usuario", "")
