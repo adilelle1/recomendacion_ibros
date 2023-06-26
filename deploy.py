@@ -13,7 +13,9 @@ import plotly.graph_objects as go
 import plotly.colors as colors
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+import nltk
 
 
 #1. Import
@@ -191,22 +193,91 @@ elif selected == 'Armado del modelo':
         st.write('En esta sección repasaremos el trabajo realizado sobre los datos y los pasos que se realizaron para construir el modelo.')
 
         st.header('1. Preprocesamiento')
+
+        st.subheader('Tratamiento de nulos y valores faltantes')
         st.write('Fue necesario realizar un proceso detallado de limpieza de los datos, ya que el dataset original contenía valores faltantes o incorrectos en columnas importantes para el armado del modelo.')
         st.write('El objetivo principal de esta etapa fue la mejora de las columnas descripción, páginas y género.')
         st.write('La columna descripción originalmente no se encontraba en el dataset, fue necesario hacer una combinación con otras fuentes para obtenerla. Se utilizaron 3 tablas adicionales.')
         st.write('De la concatenación de esas tres tablas se obtuvieron más de 100.000 registros. A partir del título y del código ISBN de Goodreads se cruzó con el dataset original y logramos obtener la descripción, las páginas y el género de 7.000 libros, de los 9.000 que teníamos orginalmente.')
         
+        st.subheader('Tratamiento de nulos y valores faltantes')
         st.write('Con la combinación de las tablas hecha, continuamos haciendo la limpieza de los datos.')
-        st.write('En primer lugar, trabajamos para rellenar los valores nulos y en los registros que no pudimos decidimos quitarlos del dataset.')
+        st.write('En primer lugar, trabajamos para rellenar los valores nulos y en los registros que no fue posible decidimos quitarlos del dataset.')
+        
+        st.subheader('Columnas de texto')
         st.write('Luego, encontramos descripciones de libros en diferentes idiomas, decidimos traducir todas al inglés utilizando la librería de Python googletrans.')
         st.write('A continuación, notamos que la columna género en realidad contenía una lista de géneros a los que pertenecía el libro. Para facilitar el análisis decidimos ordenar las listas de géneros poniendo en primer lugar el género más repetido de todo el dataset y en último el menos.')
         st.write('Con el género ordenado, tomamos los 4 primeros y los dividimos en 4 columnas diferentes, así nos quedamos con los 4 géneros "más importantes" de cada libro.')
-        st.write('El siguiente paso fue trabajar sobre la columna descripción para quitar palabras y frases repetidas en muchos registros que no aportaran al análisis, así cómo una limpieza de stopwords y puntuación, la lematización y normalización de los strings.')
-        st.write('Por último, se quitaron libros duplicados donde se repitiese el título y el código ISBN.')
+        st.write('Además, se identificaron códigos de libros como ISBN o ASSIN que estaban dentro de la descripción, o frases comunes que no deberían estar allí, y se quitaron. ')
+        st.write('Así es que se creó una columna que junta el título y la descripción para poder trabajar sobre ella.')
+       
+        st.subheader('NLP')
+        st.write('Sobre la columna nueva que se mencionó se utilizaron técnicas de NLP.')
+        st.markdown('- Se eliminaron stopwords.')
+        st.markdown('- Se puso todo en minúsculas.')
+        st.markdown('- Se quitaron las puntuaciones y números.')
+        st.write('Así, sobre el texto ya normalizado, se lematizó (tokenizó) utilizando WordNetLemmatizer, para quedarnos solo con la "raíz" de las palabras (no se usó otra librería, ya que acortaba bastante las palabras y nos parecía más correcto así).')
+        st.write('Sobre este texto limpio, se aplicó TfidfVectorizer para crear una matriz con las palabras vectorizadas, teniendo en cuenta su aparición en comparación con la cantidad de palabras que tiene el texto.')
 
-        st.header('2. Modelado')
-        st.write('Una vez finalizada la preparación de los datos comenzamos con el armado de los sistemas de recomendación.')
-        
+        st.subheader('Clusters')
+        st.write('La matriz que se creó con las palabras y sus apariciones se unió al dataset de libros para así poder encontrar clusters, "grupos con similitudes" teniendo en cuenta las palabras que se usan en la descripción.')
+        st.write('Antes de hacer el modelo, se:')
+        st.markdown('- Hizo encoding de las variables categóricas que consideramos que podían tener relevancia: autores, código de lenguaje y los géneros.')
+        st.markdown('- Eligieron las columnas adecuadas.')
+        st.markdown('- Estandarizaron las columnas numéricas que quedaron.')
+        st.write('Con el dataset preparado, se aplicó una técnica de KMeans. La cantidad de clusters (k) que se utilizó surgió de utilizar la técnica del codo o "elbow", en la que viendo el gráfico en el que se ve cómo varía la inercia con respecto a la cantidad de clusters, se observó que a partir de 4 clusters la función es más lineal.')
+        st.write('Así se logró agrupar en 4 clusters (que se usarán más adelante).')
+
+        st.subheader('Nube de palabras')
+        st.write('Para obtener más información y analizar los datos con los que contamos, se decidió hacer una nube de palabras teniendo en cuenta los géneros.')
+
+        def generate_word_clouds(df_libros):
+            generos_unicos = df_libros['genero_1'].unique()
+            frecuencias_globales = nltk.FreqDist([token for doc in df_libros['texto_lemmatizado'] for token in doc.split()])
+            palabras_comunes = set()
+
+            for genero in generos_unicos:
+                subconjunto = df_libros[df_libros['genero_1'] == genero]
+                tokens_genero = [token for doc in subconjunto['texto_lemmatizado'] for token in doc.split()]
+                frecuencias_genero = nltk.FreqDist(tokens_genero)
+                palabras_frecuentes_genero = [palabra for palabra, frecuencia in frecuencias_genero.most_common(50)]
+                palabras_frecuentes_excluir = [palabra for palabra in palabras_frecuentes_genero if frecuencias_globales[palabra] >= 0.9 * len(generos_unicos)]
+                palabras_comunes.update(palabras_frecuentes_excluir)
+
+            for genero in ['Fiction', 'Nonfiction']:
+                subconjunto = df_libros[df_libros['genero_1'] == genero]
+                textos_lemmatizados = ' '.join(subconjunto['texto_lemmatizado'])
+                wordcloud = WordCloud(stopwords=palabras_comunes, background_color='white', colormap='viridis',
+                                    width=800, height=400).generate(textos_lemmatizados)
+                plt.figure(figsize=(10, 6))
+                plt.imshow(wordcloud, interpolation='bilinear')
+                plt.axis('off')
+                plt.title('Nube de Palabras - Género: ' + genero)
+                plt.show()
+
+        generate_word_clouds(data)
+
+
+        st.write('Las nubes se armaron usando la columna del texto lematizado y se utilizó nltk FreqDist para identificar la cantidad de apariciones. Las palabras más grandes son las que más aparecen, pero así se logró sacar las palabras que eran comunes a todos los géneros. Así podemos ver que las palabras comunes para:')
+        st.markdown('-Ficción: discover, three, whose, murder, king, beautiful, dream, return.')
+        st.markdown('-No ficción: true, science, written, experience, change, age.')
+        st.write('Y lo mismo en los subgéneros:')
+        st.markdown('-Fantasía: save, enemy, dragon, dangerous, powerful, demon, blood.')
+        st.markdown('-Romance: determined, perfect, fire, share, house, left, enough, island.')
+        st.markdown('-Misterio: mystery, victim, investigation, house, murder, missing.')
+        st.markdown('-Young adult: meet, house, brother, see, student.')
+        st.markdown('-Historia: sea, empire, event, British, country, epic, Europe, Cleopatra.')
+        st.markdown('-Cultural: India, black, remarkable, beautiful, country, struggle, small, house, village.')
+        st.markdown('-Infantil: house, meet, brother, Gregor.')
+        st.markdown('-Literatura: Russian, English, literary, moral, end, beautiful, brilliant, society, masterpiece.')
+        st.markdown('-Ciencia ficción: society, save, end, destroy, run, see, side, among.')
+        st.write('Y así también con los otros subgéneros: space, comics, academic, memoir, adult, Asian literature, writing, chick lit.')
+        st.write('Pudiendo encontrar una clara relación entre las palabras de la descripción y el título con el género')
+
+
+
+        st.header('2. Armado de modelos')
+
         # Recomendacion por colaboracion
         st.subheader('Sistema de Recomendación usando Modelos de Matrix Factorization')
         st.write('Estos modelos parten de una Matriz de Puntuación de los Usuarios, donde las filas son los Ítems, las columnas son los Usuarios y los valores representan la puntuación que cada Usuario le asignó a cada Ítem.')
@@ -249,8 +320,9 @@ elif selected == 'Encontrá tu libro':
         data.reset_index(drop=True, inplace=True)
         book_index = data.loc[data['title'] == book_title].index[0]
         tfidf = TfidfVectorizer()
-        tfidf_matrix = tfidf.fit_transform(data['texto_lemmatizado'])
-        cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+        tfidf_matrix = tfidf.fit_transform(data['texto_lemmatizado']+ ' ' + data['genero_1'])
+        tfidf_matrix_weighted = tfidf_matrix.multiply(data['Cluster'].values[:, None])
+        cosine_sim = cosine_similarity(tfidf_matrix_weighted, tfidf_matrix_weighted)
         book_similarities = cosine_sim[book_index]
         similar_books_indices = book_similarities.argsort()[::-1][1:num_similar_books+1]
         similar_books = data.loc[similar_books_indices, ['title', 'genero_1', 'genero_2', 'pages', 'average_rating']]
