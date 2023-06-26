@@ -205,7 +205,25 @@ elif selected == 'Armado del modelo':
         st.write('Por último, se quitaron libros duplicados donde se repitiese el título y el código ISBN.')
 
         st.header('2. Modelado')
-        st.write('Luego, con la combinación de las tablas hecha, terminamos de hacer la limpieza de los datos.')
+        st.write('Una vez finalizada la preparación de los datos comenzamos con el armado de los sistemas de recomendación.')
+        
+        # Recomendacion por colaboracion
+        st.subheader('Sistema de Recomendación usando Modelos de Matrix Factorization')
+        st.write('Estos modelos parten de una Matriz de Puntuación de los Usuarios, donde las filas son los Ítems, las columnas son los Usuarios y los valores representan la puntuación que cada Usuario le asignó a cada Ítem. Luego, se busca una pareja de matrices cuyo producto dé como resultado la Matriz de Puntuación de los Usuarios. Estas matrices se componen de la siguiente manera:')
+        st.markdown('- Las filas son los Ítems y las columnas son los Features.')
+        st.markdown('- Las filas son los Features y las columnas son los Usuarios.')
+        st.write('Habiendo encontrado estas matrices, el Modelo es capaz de predecir cuál será la puntuación que cada Usuario le asignaría a cada Ítem multiplicándolas.')
+        st.write('Para saber qué Modelo de Matrix Factorization utilizar, calculamos la dispersión de la matriz, que está dada por el porcentaje de puntuaciones que le faltan a dicha matriz. En este caso, el porcentaje fue del 99,82%, ')
+        st.write('La dispersión puede traducirse en una mala performance del modelo. Por lo tanto, es necesario elegir un modelo que pueda manejar la escasez de interacciones entre usuarios e ítems. Es por esto que se eligió el modelo ALS. Otras ventajas de este modelo son:')
+        st.markdown('Puede incorporar restricciones y regularizaciones para evitar el sobreajuste.')
+        st.markdown('Es poco sensible a outliers.')
+        st.markdown('Es más rápido que los métodos SVD y SGD.')
+        st.markdown('Es escalable a grandes conjuntos de datos.')
+        st.write('La siguiente decisión a tomar para ejecutar el Modelo es la cantidad de Features (k) que se requerirán. Elegimos un k = 190, porque las matrices muy dispersas requieren un k grande. Sin embargo, sabemos que esto implica un riesgo de sobreajuste y una performance pobre.')
+
+        # Recomendacion por contenido
+
+
 
     if __name__ == '__main__':
         model_backstage()
