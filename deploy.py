@@ -99,7 +99,7 @@ elif selected == 'Visualizando los datos':
         books_per_year = data.loc[data['original_publication_year'] > 1800, 'original_publication_year'].value_counts().sort_index().reset_index()
         books_per_year.columns = ['Año', 'Cantidad']
 
-        fig = px.line(books_per_year, x='Año', y='Cantidad', title='<b>Libros por año</b>')
+        fig = px.line(books_per_year, x='Año', y='Cantidad')
         fig.update_xaxes(title='Año')
         fig.update_yaxes(title='Cantidad de libros')
 
@@ -110,7 +110,6 @@ elif selected == 'Visualizando los datos':
         datos_subplot_1 = data.groupby('genero_1')['average_rating'].mean().reset_index()
         fig = go.Figure(data=[go.Bar(x=datos_subplot_1['average_rating'], y=datos_subplot_1['genero_1'], marker=dict(color=color_palette), orientation='h')])
         fig.update_layout(
-            title="<b>Puntuación promedio por género</b>",
             xaxis_title="Puntuación promedio"
         )
         st.plotly_chart(fig)
@@ -121,29 +120,12 @@ elif selected == 'Visualizando los datos':
         fig = go.Figure(data=[go.Bar(x=datos_subplot_2['pages'], y=datos_subplot_2['genero_1'], marker=dict(color=color_palette), orientation='h')])
 
         fig.update_layout(
-            title="<b>Número de páginas promedio por género</b>",
             xaxis_title="Promedio de páginas"
         )
         st.plotly_chart(fig)
 
     
     # Libros mejor puntuados
-    def create_top_rated_books_chart(genre):
-        top_10_most_rated_books = data[data['genero_1'] == genre].sort_values('ratings_count', ascending=False).head(10)
-        fig = go.Figure(data=[go.Bar(
-            x=top_10_most_rated_books['ratings_count'],
-            y=top_10_most_rated_books['title'],
-            orientation='h',
-            marker=dict(color=color_palette))])
-
-        fig.update_layout(
-            title=f"<b>Top 10 libros con más puntuaciones - Género: {genre}</b>",
-            xaxis_title="Número de Valoraciones",
-            barmode='stack',
-            yaxis_categoryorder='total ascending')
-
-        st.plotly_chart(fig)
-
     def create_top_rated_books_chart(genre):
         filtered_data = data[(data['genero_1'] == genre)]
         average_ratings = filtered_data.groupby('title')['average_rating'].mean().reset_index()
@@ -155,7 +137,8 @@ elif selected == 'Visualizando los datos':
                     color='title', color_discrete_sequence=color_palette)
 
         fig.update_layout(showlegend=False)
-        fig.update_xaxes(automargin=True, title=None)
+        fig.update_xaxes(automargin=True)
+        fig.update_yaxes(title=None)
         st.plotly_chart(fig)
 
 
@@ -171,7 +154,8 @@ elif selected == 'Visualizando los datos':
                     color='authors', color_discrete_sequence=color_palette)
 
         fig.update_layout(showlegend=False)
-        fig.update_xaxes(automargin=True, title=None)
+        fig.update_xaxes(automargin=True)
+        fig.update_yaxes(title=None)
         st.plotly_chart(fig)
 
     if __name__ == '__main__':
