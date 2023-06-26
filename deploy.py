@@ -104,23 +104,6 @@ elif selected == 'Visualizando los datos':
         fig.update_yaxes(title='Cantidad de libros')
 
         st.plotly_chart(fig)
-    
-    # Libros mejor puntuados
-    def create_top_rated_books_chart():
-        top_10_most_rated_books = data.sort_values('ratings_count', ascending=False).head(10)
-        fig = go.Figure(data=[go.Bar(
-            x=top_10_most_rated_books['ratings_count'],
-            y=top_10_most_rated_books['title'],
-            orientation='h',
-            marker=dict(color=color_palette))])
-
-        fig.update_layout(
-            title="<b>Top 10 libros con más puntuaciones</b>",
-            xaxis_title="Número de Valoraciones",
-            barmode='stack',
-            yaxis_categoryorder='total ascending')
-        
-        st.plotly_chart(fig)
 
     # Puntuacion promedio por género
     def create_average_rating_by_genre_chart():
@@ -143,8 +126,26 @@ elif selected == 'Visualizando los datos':
         )
         st.plotly_chart(fig)
 
+    
+    # Libros mejor puntuados
+    def create_top_rated_books_chart(genre):
+        top_10_most_rated_books = data[data['genero_1'] == genre].sort_values('ratings_count', ascending=False).head(10)
+        fig = go.Figure(data=[go.Bar(
+            x=top_10_most_rated_books['ratings_count'],
+            y=top_10_most_rated_books['title'],
+            orientation='h',
+            marker=dict(color=color_palette))])
+
+        fig.update_layout(
+            title=f"<b>Top 10 libros con más puntuaciones - Género: {genre}</b>",
+            xaxis_title="Número de Valoraciones",
+            barmode='stack',
+            yaxis_categoryorder='total ascending')
+
+        st.plotly_chart(fig)
+
+
     # top 10 autores por género 
-    genres = data['genero_1'].unique()
     def puntuacion_autores_por_genero(genre):
         filtered_data = data[(data['genero_1'] == genre) & (~data['authors'].str.contains(','))]
         average_ratings = filtered_data.groupby('authors')['average_rating'].mean().reset_index()
@@ -162,14 +163,14 @@ elif selected == 'Visualizando los datos':
     if __name__ == '__main__':
         st.header('Libros por año')
         create_books_per_year_chart()
-        st.header('Mejor puntuados')
-        create_top_rated_books_chart()
         st.header('Páginas promedio por género')
         create_average_pages_by_genre_chart()
         st.header('Puntuación promedio por género')
         create_average_rating_by_genre_chart()
-        st.header('Top 10 autores')
+        st.header('Mejor puntuados')
+        genres = data['genero_1'].unique()
         selected_genre = st.selectbox('Selecciona un género', genres)
+        create_top_rated_books_chart()
         puntuacion_autores_por_genero(selected_genre)
 
         st.markdown('''
@@ -211,7 +212,6 @@ elif selected == 'Armado del modelo':
 # Pagina 4 = Modelo
 elif selected == 'Encontrá tu libro':
     st.title('Encontrá tu próximo libro')
-    st.image('book_gif.gif',  width=400)
     st.sidebar.title("Ingrese su número de usuario")
     user_number = st.sidebar.text_input("Número de usuario", "")
     st.sidebar.write("Número de usuario ingresado:", user_number)
