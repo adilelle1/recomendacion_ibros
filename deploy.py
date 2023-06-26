@@ -11,7 +11,8 @@ from sklearn.preprocessing import OneHotEncoder
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.colors as colors
-
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 
@@ -193,12 +194,18 @@ elif selected == 'Armado del modelo':
         st.write('Fue necesario realizar un proceso detallado de limpieza de los datos, ya que el dataset original contenía valores faltantes o incorrectos en columnas importantes para el armado del modelo.')
         st.write('El objetivo principal de esta etapa fue la mejora de las columnas descripción, páginas y género.')
         st.write('La columna descripción originalmente no se encontraba en el dataset, fue necesario hacer una combinación con otras fuentes para obtenerla. Se utilizaron 3 tablas adicionales.')
-        st.write('Para algunos registros fue necesario realizar una búsqueda de la descripción, ya que a pesar del join de tablas no se encontró ningún valor.')
-        st.write('Para las columnas de páginas y géneros el proceso fue similar.')
-        ###### Agregar lo que hizo meli de traducción
-
+        st.write('De la concatenación de esas tres tablas se obtuvieron más de 100.000 registros. A partir del título y del código ISBN de Goodreads se cruzó con el dataset original y logramos obtener la descripción, las páginas y el género de 7.000 libros, de los 9.000 que teníamos orginalmente.')
         
-        st.header('2. Modelo a elegir')
+        st.write('Con la combinación de las tablas hecha, continuamos haciendo la limpieza de los datos.')
+        st.write('En primer lugar, trabajamos para rellenar los valores nulos y en los registros que no pudimos decidimos quitarlos del dataset.')
+        st.write('Luego, encontramos descripciones de libros en diferentes idiomas, decidimos traducir todas al inglés utilizando la librería de Python googletrans.')
+        st.write('A continuación, notamos que la columna género en realidad contenía una lista de géneros a los que pertenecía el libro. Para facilitar el análisis decidimos ordenar las listas de géneros poniendo en primer lugar el género más repetido de todo el dataset y en último el menos.')
+        st.write('Con el género ordenado, tomamos los 4 primeros y los dividimos en 4 columnas diferentes, así nos quedamos con los 4 géneros "más importantes" de cada libro.')
+        st.write('El siguiente paso fue trabajar sobre la columna descripción para quitar palabras y frases repetidas en muchos registros que no aportaran al análisis, así cómo una limpieza de stopwords y puntuación, la lematización y normalización de los strings.')
+        st.write('Por último, se quitaron libros duplicados donde se repitiese el título y el código ISBN.')
+
+        st.header('2. Modelado')
+        st.write('Luego, con la combinación de las tablas hecha, terminamos de hacer la limpieza de los datos.')
 
     if __name__ == '__main__':
         model_backstage()
@@ -210,47 +217,32 @@ elif selected == 'Armado del modelo':
 # Pagina 4 = Modelo
 elif selected == 'Encontrá tu libro':
     st.title('Encontrá tu próximo libro')
-    st.sidebar.title("Ingrese su número de usuario")
+    st.sidebar.title("Modelo basado en colaboración")
     user_number = st.sidebar.text_input("Número de usuario", "")
     st.sidebar.write("Número de usuario ingresado:", user_number)
 
-    
-    def get_data(country, location_type, cellphone_access, household_size, age_of_respondent, gender_of_respondent, relationship_with_head, marital_status, education_level, job_type):
-            data_inputs = {'country': country, 
-                    'location_type': location_type, 
-                    'cellphone_access': cellphone_access, 
-                    'household_size': household_size, 
-                    'age_of_respondent':age_of_respondent, 
-                    'gender_of_respondent': gender_of_respondent, 
-                    'relationship_with_head': relationship_with_head, 
-                    'marital_status': marital_status, 
-                    'education_level': education_level, 
-                    'job_type': job_type}
-            data= pd.DataFrame(data_inputs, index=[0])
-            return data
+    st.sidebar.title("Modelo basado en contenido")
+    book_titles = data['title'].unique()
+    selected_book_title = st.sidebar.text_input('Ingresa un título de libro', value='', key='book_title_input')
 
-    def print_results():
-        country, location_type, cellphone_access, household_size, age_of_respondent, gender_of_respondent, relationship_with_head, marital_status, education_level, job_type, button = inputs()
-        if button:
-            st.header('Probando el modelo con los datos ingresados')
-            st.write('') 
-            trial_data = get_data(country, location_type, cellphone_access, household_size, age_of_respondent, gender_of_respondent, relationship_with_head, marital_status, education_level, job_type)
-            
-            # imprimimos el df con los inputs
-            st.write('Estos son los datos que ingresaste:')
-            st.dataframe(trial_data)
+    def find_similar_books(book_title, num_similar_books=3):
+        data.reset_index(drop=True, inplace=True)
+        book_index = data.loc[data['title'] == book_title].index[0]
+        tfidf = TfidfVectorizer()
+        tfidf_matrix = tfidf.fit_transform(data['texto_lemmatizado'])
+        cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+        book_similarities = cosine_sim[book_index]
+        similar_books_indices = book_similarities.argsort()[::-1][1:num_similar_books+1]
+        similar_books = data.loc[similar_books_indices, 'title'].tolist()
+        return similar_books
 
-            with open('financial_inclusion.pkl', 'rb') as clf_inclusion:
-                modelo_inclusion = pickle.load(clf_inclusion)
-            # Prediccion usando el trial data con lo insertado en el form
-            if modelo_inclusion.predict(trial_data) == 1:
-                st.write('---')
-                st.markdown('<h4 style="text-align: center; color: Green">El individuo se encuentra bancarizado</h4>',unsafe_allow_html=True)
-                st.write('---')
-            else:
-                st.write('---')
-                st.markdown('<h4 style="text-align: center; color: Red">El individuo no se encuentra bancarizado</h4>', unsafe_allow_html=True, )
-                st.write('---')
-
-    if __name__ == '__main__':
-        print_results()  
+    # Verificar si el título ingresado existe en el dataset
+    if selected_book_title.strip() not in book_titles:
+        st.sidebar.warning('Por favor, ingresa un título válido.')
+    else:
+        if __name__ == '__main__':
+            st.write(f'Título seleccionado: {selected_book_title}')
+            similar_books = find_similar_books(selected_book_title, num_similar_books=3)
+            st.write('Libros similares:')
+            for i, book in enumerate(similar_books):
+                st.write(f'{i+1}. {book}')
