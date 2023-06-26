@@ -26,7 +26,7 @@ st.set_page_config(page_title="Sistema de recomendación de libros")
 with st.sidebar:
     selected = option_menu(
         menu_title='Menu',
-        options=['Home', '', 'Armado del modelo', 'Encontrá tu libro'],
+        options=['Home', 'Visualizando los datos', 'Armado del modelo', 'Encontrá tu libro'],
     )
 
 
@@ -80,7 +80,7 @@ if selected == 'Home':
     st.markdown("\n **genre_3** :  Tercer género del libro (por importancia en las repeticiones en el dataset).")
     st.markdown("\n **genre_4** :  Cuarto género del libro (por importancia en las repeticiones en el dataset).")
 
-    st.markdown("\n**Tabla Ratings**")
+    st.markdown("\n\n**Tabla Ratings**")
     st.markdown("\n **book_id** :  Número de identificación del libro.")
     st.markdown("\n **user_id** :  Número de identificación del usuario.")
     st.markdown("\n **rating** :  Puntuación del libro del 1 al 5.")
@@ -89,8 +89,8 @@ if selected == 'Home':
 
 
 # Pagina 2 = Graficos
-elif selected == 'Data visualization':
-    st.title('Data visualization')
+elif selected == 'Visualizando los datos':
+    st.title('Visualizando los datos')
 
     color_palette = colors.qualitative.Light24
 
@@ -211,7 +211,6 @@ elif selected == 'Armado del modelo':
 # Pagina 4 = Modelo
 elif selected == 'Econtrá tu libro':
     st.title('Encontrá tu próximo libro')
-    st.image('book_gif.gif', use_column_width=True)
     def inputs():
         st.sidebar.title("Ingrese su número de usuario")
         user_number = st.sidebar.text_input("Número de usuario", "")
