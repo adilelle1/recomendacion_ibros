@@ -184,7 +184,7 @@ elif selected == 'Visualizando los datos':
         st.header('Mejor puntuados')
         genres = data['genero_1'].unique()
         selected_genre = st.selectbox('Selecciona un género', genres)
-        create_top_rated_books_chart()
+        create_top_rated_books_chart(selected_genre)
         puntuacion_autores_por_genero(selected_genre)
 
         st.markdown('''
