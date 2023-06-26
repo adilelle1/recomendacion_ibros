@@ -211,7 +211,7 @@ elif selected == 'Armado del modelo':
 # Pagina 4 = Modelo
 elif selected == 'Encontrá tu libro':
     st.title('Encontrá tu próximo libro')
-    st.image('book_gif.gif', use_column_width=True)
+    st.image('book_gif.gif',  width=400)
     st.sidebar.title("Ingrese su número de usuario")
     user_number = st.sidebar.text_input("Número de usuario", "")
     st.sidebar.write("Número de usuario ingresado:", user_number)
