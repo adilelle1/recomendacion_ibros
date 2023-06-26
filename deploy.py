@@ -209,12 +209,15 @@ elif selected == 'Armado del modelo':
         
         # Recomendacion por colaboracion
         st.subheader('Sistema de Recomendación usando Modelos de Matrix Factorization')
-        st.write('Estos modelos parten de una Matriz de Puntuación de los Usuarios, donde las filas son los Ítems, las columnas son los Usuarios y los valores representan la puntuación que cada Usuario le asignó a cada Ítem. Luego, se busca una pareja de matrices cuyo producto dé como resultado la Matriz de Puntuación de los Usuarios. Estas matrices se componen de la siguiente manera:')
+        st.write('Estos modelos parten de una Matriz de Puntuación de los Usuarios, donde las filas son los Ítems, las columnas son los Usuarios y los valores representan la puntuación que cada Usuario le asignó a cada Ítem.')
+        st.write('Luego, se busca una pareja de matrices cuyo producto dé como resultado la Matriz de Puntuación de los Usuarios.')
+        st.write('Estas matrices se componen de la siguiente manera:')
         st.markdown('- Las filas son los Ítems y las columnas son los Features.')
         st.markdown('- Las filas son los Features y las columnas son los Usuarios.')
         st.write('Habiendo encontrado estas matrices, el Modelo es capaz de predecir cuál será la puntuación que cada Usuario le asignaría a cada Ítem multiplicándolas.')
         st.write('Para saber qué Modelo de Matrix Factorization utilizar, calculamos la dispersión de la matriz, que está dada por el porcentaje de puntuaciones que le faltan a dicha matriz. En este caso, el porcentaje fue del 99,82%, ')
-        st.write('La dispersión puede traducirse en una mala performance del modelo. Por lo tanto, es necesario elegir un modelo que pueda manejar la escasez de interacciones entre usuarios e ítems. Es por esto que se eligió el modelo ALS. Otras ventajas de este modelo son:')
+        st.write('La dispersión puede traducirse en una mala performance del modelo. Por lo tanto, es necesario elegir un modelo que pueda manejar la escasez de interacciones entre usuarios e ítems. Es por esto que se eligió el modelo ALS.')
+        st.write('Otras ventajas de este modelo son:')
         st.markdown('- Puede incorporar restricciones y regularizaciones para evitar el sobreajuste.')
         st.markdown('- Es poco sensible a outliers.')
         st.markdown('- Es más rápido que los métodos SVD y SGD.')
