@@ -217,13 +217,13 @@ elif selected == 'Armado del modelo':
 # Pagina 4 = Modelo
 elif selected == 'Encontrá tu libro':
     st.title('Encontrá tu próximo libro')
-    st.sidebar.title("Modelo basado en colaboración")
-    user_number = st.sidebar.text_input("Número de usuario", "")
-    st.sidebar.write("Número de usuario ingresado:", user_number)
+    st.title("Modelo basado en colaboración")
+    user_number = st.text_input("Número de usuario", "")
+    st.write("Número de usuario ingresado:", user_number)
 
-    st.sidebar.title("Modelo basado en contenido")
+    st.title("Modelo basado en contenido")
     book_titles = data['title'].unique()
-    selected_book_title = st.sidebar.text_input('Ingresa un título de libro', value='', key='book_title_input')
+    selected_book_title = st.text_input('Ingresa un título de libro', value='', key='book_title_input')
 
     def find_similar_books(book_title, num_similar_books=3):
         data.reset_index(drop=True, inplace=True)
@@ -233,12 +233,12 @@ elif selected == 'Encontrá tu libro':
         cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
         book_similarities = cosine_sim[book_index]
         similar_books_indices = book_similarities.argsort()[::-1][1:num_similar_books+1]
-        similar_books = data.loc[similar_books_indices, 'title'].tolist()
+        similar_books = data.loc[similar_books_indices, ['title', 'genero_1', 'genero_2', 'pages', 'description_en']]
         return similar_books
 
     # Verificar si el título ingresado existe en el dataset
     if selected_book_title.strip() not in book_titles:
-        st.sidebar.warning('Por favor, ingresa un título válido.')
+        st.warning('Por favor, ingresa un título válido.')
     else:
         if __name__ == '__main__':
             st.write(f'Título seleccionado: {selected_book_title}')
@@ -246,3 +246,7 @@ elif selected == 'Encontrá tu libro':
             st.write('Libros similares:')
             for i, book in enumerate(similar_books):
                 st.write(f'{i+1}. {book}')
+                st.write(f'   Género 1: {book[1]["genero_1"]}')
+                st.write(f'   Género 2: {book[1]["genero_2"]}')
+                st.write(f'   Páginas: {book[1]["pages"]}')
+                st.write(f'   Descripción: {book[1]["description_en"]}')
