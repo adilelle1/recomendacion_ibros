@@ -297,8 +297,14 @@ elif selected == 'Armado del modelo':
         st.markdown('- Es escalable a grandes conjuntos de datos.')
         st.write('La siguiente decisión a tomar para ejecutar el Modelo es la cantidad de Features (k) que se requerirán. Elegimos un k = 190, porque las matrices muy dispersas requieren un k grande. Sin embargo, sabemos que esto implica un riesgo de sobreajuste y una performance pobre.')
 
-        # Recomendacion por contenido
-
+        # Recomendacion por similitud
+        st.subheader('Sistema de recomendación por similitud')
+        st.write('Este tipo de modelo pretende recomendar al usuario ítems similares.')
+        st.write('En nuestro caso, proponemos que el usuario ingrese el nombre de un libro y el modelo devuelva 3 libros con un grado alto de similitud.')
+        st.write('Para encontrar la similitud entre los libros se realiza una vectorizacion con TFIDF Vectorizer sobre las columnas de texto de descripción y género.')
+        st.write('Además, utilizamos el trabajo previo realizado con NLP y KNN donde se encontraron diferentes clusters, los cuales utilizamos para agregar peso a los valores de la matriz.')
+        st.write('Por útlimo, utilizamos cosine_similarity de sklearn pasando la matriz con los pesos para calcular la similitud entre los vectores de la matriz.')
+        st.write('Los 3 vectores, en este caso libros, con mayor similitud al valor ingresado por el usuario son los que devuelve el sistema de recomendación.')
 
 
     if __name__ == '__main__':
@@ -310,31 +316,60 @@ elif selected == 'Armado del modelo':
 
 # Pagina 4 = Modelo
 elif selected == 'Encontrá tu libro':
-    st.title('Encontrá tu próximo libro')
-    st.header("Modelo basado en colaboración")
-    user_number = st.text_input("Número de usuario", "")
+    def encontra_tu_libro():
+        st.title('Encontrá tu próximo libro')
+        st.header("Modelo basado en colaboración")
+        user_number = st.text_input("Número de usuario", "")
 
-    st.header("Modelo basado en contenido")
-    book_titles = data['title'].unique()
-    selected_book_title = st.text_input('Ingresa un título de libro', value='', key='book_title_input')
+        merged_data = pd.merge(data_ratings, data, on='book_id')
+        merged_data = merged_data[['user_id','genero_1', 'genero_2', 'pages']]
 
-    def find_similar_books(book_title, num_similar_books=3):
-        data.reset_index(drop=True, inplace=True)
-        book_index = data.loc[data['title'] == book_title].index[0]
-        tfidf = TfidfVectorizer()
-        tfidf_matrix = tfidf.fit_transform(data['texto_lemmatizado']+ ' ' + data['genero_1'])
-        tfidf_matrix_weighted = tfidf_matrix.multiply(data['Cluster'].values[:, None])
-        cosine_sim = cosine_similarity(tfidf_matrix_weighted, tfidf_matrix_weighted)
-        book_similarities = cosine_sim[book_index]
-        similar_books_indices = book_similarities.argsort()[::-1][1:num_similar_books+1]
-        similar_books = data.loc[similar_books_indices, ['title', 'genero_1', 'genero_2', 'pages', 'average_rating']]
-        return similar_books
 
-    # Verificar si el título ingresado existe en el dataset
-    if selected_book_title.strip() not in book_titles:
-        st.warning('Por favor, ingresa un título válido.')
-    else:
-        if __name__ == '__main__':
+        agg_functions = {'genero_1': lambda x: x.value_counts().index[0],
+                    'genero_2': lambda x: x.value_counts().index[0],
+                    'pages': 'mean'}
+
+
+        def valores_frecuentes_usuario(user_id):
+            frequent_values = merged_data[merged_data['user_id'] == user_id].groupby('user_id').agg(agg_functions)
+            primer_genero = frequent_values['genero_1'].values[0]
+            segundo_genero = frequent_values['genero_2'].values[0]
+            paginas_promedio = frequent_values['pages'].values[0]
+
+            return primer_genero, segundo_genero, paginas_promedio
+
+        if user_number.strip() != '':
+            try:
+                user_id = int(user_number)
+                primer_genero, segundo_genero, paginas_promedio = valores_frecuentes_usuario(user_number)
+                st.write('Primer genero favorito:', primer_genero)
+                st.write('Segundo genero favorito:', segundo_genero)
+                st.write('Paginas promedio por libro:', paginas_promedio)
+            except ValueError:
+                st.warning('Por favor, ingresa un título válido.')
+
+
+        # modelo similitud
+        st.header("Modelo basado en similitud")
+        book_titles = data['title'].unique()
+        selected_book_title = st.text_input('Ingresa un título de libro', value='', key='book_title_input')
+
+        def find_similar_books(book_title, num_similar_books=3):
+            data.reset_index(drop=True, inplace=True)
+            book_index = data.loc[data['title'] == book_title].index[0]
+            tfidf = TfidfVectorizer()
+            tfidf_matrix = tfidf.fit_transform(data['texto_lemmatizado']+ ' ' + data['genero_1'])
+            tfidf_matrix_weighted = tfidf_matrix.multiply(data['Cluster'].values[:, None])
+            cosine_sim = cosine_similarity(tfidf_matrix_weighted, tfidf_matrix_weighted)
+            book_similarities = cosine_sim[book_index]
+            similar_books_indices = book_similarities.argsort()[::-1][1:num_similar_books+1]
+            similar_books = data.loc[similar_books_indices, ['title', 'genero_1', 'genero_2', 'pages', 'average_rating']]
+            return similar_books
+
+        # Verificar si el título ingresado existe en el dataset
+        if selected_book_title.strip() not in book_titles:
+            st.warning('Por favor, ingresa un título válido.')
+        else:
             similar_books = find_similar_books(selected_book_title, num_similar_books=3)
             st.write('**Libros similares:**')
             for i, book in similar_books.iterrows():
@@ -343,3 +378,7 @@ elif selected == 'Encontrá tu libro':
                 st.markdown(f'- Páginas: {book.pages}')
                 st.markdown(f'- Rating: {book.average_rating}')
 
+
+
+    if __name__ == '__main__':
+        encontra_tu_libro()
