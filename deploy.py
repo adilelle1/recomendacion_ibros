@@ -117,10 +117,10 @@ elif selected == 'Visualizando los datos':
         genero_df = pd.DataFrame({'Genero': genero_counts.index, 'Libros': genero_counts.values})
         labels = genero_df['Genero']
         sizes = genero_df['Libros']
-        fig = px.pie(genero_df, values='Libros', names='Genero',
-                    title='Distribución de libros por género', color_discrete_sequence=color_palette)
+        fig = px.pie(genero_df, values='Libros', names='Genero', color_discrete_sequence=color_palette)
 
         fig.update_traces(textinfo='label+percent')
+        fig.update_layout(showlegend=False)
 
         st.plotly_chart(fig)
 
@@ -178,7 +178,7 @@ elif selected == 'Visualizando los datos':
         st.plotly_chart(fig)
 
     if __name__ == '__main__':
-        st.header('Libros por año')
+        st.header('Distribución libros por género')
         create_books_per_year_chart()
         st.header('Páginas promedio por género')
         create_average_pages_by_genre_chart()
@@ -243,6 +243,8 @@ elif selected == 'Armado del modelo':
         st.markdown('- Estandarizaron las columnas numéricas que quedaron.')
         st.write('Con el dataset preparado, se aplicó una técnica de KMeans. La cantidad de clusters (k) que se utilizó surgió de utilizar la técnica del codo o "elbow", en la que viendo el gráfico en el que se ve cómo varía la inercia con respecto a la cantidad de clusters, se observó que a partir de 4 clusters la función es más lineal.')
         st.write('Así se logró agrupar en 4 clusters (que se usarán más adelante).')
+        st.image('k-means.png')
+
 
         st.subheader('Nube de palabras')
         st.write('Para obtener más información y analizar los datos con los que contamos, se decidió hacer una nube de palabras teniendo en cuenta los géneros.')
@@ -296,6 +298,16 @@ elif selected == 'Armado del modelo':
 
         st.header('2. Armado de modelos')
 
+        # Recomendacion por similitud   
+        st.subheader('Sistema de recomendación por similitud')
+        st.write('Este tipo de modelo pretende recomendar al usuario ítems similares.')
+        st.write('En nuestro caso, proponemos que el usuario ingrese el nombre de un libro y el modelo devuelva 3 libros con un grado alto de similitud.')
+        st.write('Para encontrar la similitud entre los libros se realiza una vectorización con TFIDF Vectorizer sobre las columnas de texto de descripción y género.')
+        st.write('Además, utilizamos el trabajo previo realizado con NLP y K-Means donde se encontraron diferentes clusters, los cuales utilizamos para agregar peso a los valores de la matriz.')
+        st.write('Por útlimo, utilizamos cosine_similarity de sklearn pasando la matriz con los pesos para calcular la similitud entre los vectores de la matriz.')
+        st.write('Los 3 vectores, en este caso libros, con mayor similitud al valor ingresado por el usuario son los que devuelve el sistema de recomendación.')
+        st.image('cosine-similarity-1007790.jpg')
+
         # Recomendacion por colaboracion
         st.subheader('Sistema de Recomendación usando Modelos de Matrix Factorization')
         st.write('Estos modelos parten de una Matriz de Puntuación de los Usuarios, donde las filas son los Ítems, las columnas son los Usuarios y los valores representan la puntuación que cada Usuario le asignó a cada Ítem.')
@@ -312,15 +324,6 @@ elif selected == 'Armado del modelo':
         st.markdown('- Es más rápido que los métodos SVD y SGD.')
         st.markdown('- Es escalable a grandes conjuntos de datos.')
         st.write('La siguiente decisión a tomar para ejecutar el Modelo es la cantidad de Features (k) que se requerirán. Elegimos un k = 190, porque las matrices muy dispersas requieren un k grande. Sin embargo, sabemos que esto implica un riesgo de sobreajuste y una performance pobre.')
-
-        # Recomendacion por similitud
-        st.subheader('Sistema de recomendación por similitud')
-        st.write('Este tipo de modelo pretende recomendar al usuario ítems similares.')
-        st.write('En nuestro caso, proponemos que el usuario ingrese el nombre de un libro y el modelo devuelva 3 libros con un grado alto de similitud.')
-        st.write('Para encontrar la similitud entre los libros se realiza una vectorización con TFIDF Vectorizer sobre las columnas de texto de descripción y género.')
-        st.write('Además, utilizamos el trabajo previo realizado con NLP y KNN donde se encontraron diferentes clusters, los cuales utilizamos para agregar peso a los valores de la matriz.')
-        st.write('Por útlimo, utilizamos cosine_similarity de sklearn pasando la matriz con los pesos para calcular la similitud entre los vectores de la matriz.')
-        st.write('Los 3 vectores, en este caso libros, con mayor similitud al valor ingresado por el usuario son los que devuelve el sistema de recomendación.')
 
 
     if __name__ == '__main__':
