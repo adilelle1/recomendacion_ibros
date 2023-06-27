@@ -369,38 +369,7 @@ elif selected == 'Encontrá tu libro':
                 st.markdown(f'- Rating: {book.average_rating}')
 
 
-        label_encoder = LabelEncoder()
-        data_ratings['genero_1_label'] = label_encoder.fit_transform(data_ratings['genero_1'])
-
-        ratings_matrix = data_ratings.pivot_table(index='user_id', columns='book_id', values='rating', fill_value=0)
-
-
-        item_similarity = cosine_similarity(ratings_matrix.T)
-
-        def recommend_books(user_id, num_recommendations=5):
-            user_ratings = ratings_matrix[user_id]
-            similarity_scores = item_similarity.dot(user_ratings)
-            sorted_indices = np.argsort(similarity_scores)[::-1]
-            top_indices = sorted_indices[:num_recommendations]
-            recommended_books = data.loc[top_indices, ['title', 'genero_1', 'genero_2', 'pages', 'average_rating']]
-            return recommended_books
-
-
-        # Uso en Streamlit
-        if user_number.strip() != '':
-            try:
-                user_id = int(user_number)
-                recomendados = recommend_books(user_id)
-                st.write('**Libros recomendados:**')
-                for i, book in recomendados.iterrows():
-                    st.write(f'**{book["title"]}**')
-                    st.markdown(f'- Género: {book["genero_1"]} - {book["genero_2"]}')
-                    st.markdown(f'- Páginas: {book["pages"]}')
-                    st.markdown(f'- Rating: {book["average_rating"]}')
-            except ValueError:
-                st.warning('Por favor, ingresa un número de usuario válido.')
-
-        
+                
         st.header("Modelo basado en colaboración")
         user_number = st.text_input("Número de usuario", "")
 
@@ -435,6 +404,39 @@ elif selected == 'Encontrá tu libro':
                 st.warning('Por favor, ingresa un número de usuario válido.')
 
 
+        # Modelo en reemplazo del de Pyspark
+        merged_data_ratings = pd.merge(data_ratings, data, on='book_id')
+        merged_data_ratings = merged_data_ratings[['user_id', 'book_id', 'genero_1', 'rating']]
+
+        label_encoder = LabelEncoder()
+        merged_data_ratings['genero_1_label'] = label_encoder.fit_transform(merged_data_ratings['genero_1'])
+
+        ratings_matrix = merged_data_ratings.pivot_table(index='user_id', columns='book_id', values='rating', fill_value=0)
+
+
+        item_similarity = cosine_similarity(ratings_matrix.T)
+        def recommend_books(user_id):
+            user_ratings = ratings_matrix.loc[user_id]
+            similarity_scores = item_similarity.dot(user_ratings.values.reshape(-1, 1))
+            sorted_indices = np.argsort(similarity_scores, axis=0)[::-1]
+            top_indices = sorted_indices[:5].flatten().tolist()
+            recommended_books = data.loc[top_indices, ['title', 'genero_1', 'genero_2', 'pages', 'average_rating']]
+            return recommended_books
+
+
+        # Uso en Streamlit
+        if user_number.strip() != '':
+            try:
+                user_id = int(user_number)
+                recomendados = recommend_books(user_id)
+                st.write('**Libros recomendados:**')
+                for i, book in recomendados.iterrows():
+                    st.write(f'**{book["title"]}**')
+                    st.markdown(f'- Género: {book["genero_1"]} - {book["genero_2"]}')
+                    st.markdown(f'- Páginas: {book["pages"]}')
+                    st.markdown(f'- Rating: {book["average_rating"]}')
+            except ValueError:
+                st.warning('Por favor, ingresa un número de usuario válido.')
 
 
     if __name__ == '__main__':
