@@ -400,6 +400,10 @@ elif selected == 'Encontrá tu libro':
                 st.markdown(f'- Géneros favoritos: **:blue[{primer_genero} - {segundo_genero}]** ')
                 st.markdown(f'- Autor más leido: **:blue[{autor_mas_leido}]** ')
                 st.markdown(f'- Páginas promedio por libro: **:blue[{paginas_promedio}]** ')
+
+                st.markdown('<br>', unsafe_allow_html=True)  # Salto de línea
+                st.write('Probar el sistema de recomendación basado en colaboración:')
+                st.markdown('Probar el sistema de recomendación basado en colaboración: [Encontrá tu libro](https://colab.research.google.com/drive/14WSdocV44PPXy-ri9e5ixUKB3jYaeaQ_?usp=sharing)')
             except ValueError:
                 st.warning('Por favor, ingresa un número de usuario válido.')
 
