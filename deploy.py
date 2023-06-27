@@ -7,7 +7,6 @@ import pickle
 from streamlit_option_menu import option_menu
 import streamlit.components.v1 as html
 import plotly.express as px
-from sklearn.preprocessing import OneHotEncoder
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.colors as colors
@@ -16,13 +15,16 @@ from sklearn.metrics.pairwise import cosine_similarity
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import nltk
+from sklearn.preprocessing import LabelEncoder
 # from pyspark.sql.functions import col, explode
 # from pyspark import SparkContext
 # from pyspark.sql import SparkSession
 # from scipy.sparse import csr_matrix
-# from implicit.als import AlternatingLeastSquares
+# from implicit.als import AlternatingLeastSquares       
+# from pyspark import SparkConf
 # implicit==0.7.0
-# pyspark==3.4.1
+# pyspark>=3.0.0
+
 
 #1. Import
 data = pd.read_csv('data/books_limpio_def.csv',index_col=[0])
@@ -337,84 +339,6 @@ elif selected == 'Armado del modelo':
 elif selected == 'Encontrá tu libro':
     def encontra_tu_libro():
         st.title('Encontrá tu próximo libro')
-        st.header("Modelo basado en colaboración")
-        user_number = st.text_input("Número de usuario", "")
-
-        merged_data = pd.merge(data_ratings, data, on='book_id')
-        merged_data = merged_data[['user_id', 'genero_1', 'genero_2', 'pages','authors']]
-
-        agg_functions = {'genero_1': lambda x: x.value_counts().index[0],
-                        'genero_2': lambda x: x.value_counts().index[0],
-                        'authors': lambda x: x.value_counts().index[0],
-                        'pages': 'mean'}
-
-        def valores_frecuentes_usuario(user_id):
-            frequent_values = merged_data[merged_data['user_id'] == user_id].groupby('user_id').agg(agg_functions)
-            primer_genero = frequent_values['genero_1'].values[0]
-            segundo_genero = frequent_values['genero_2'].values[0]
-            paginas_promedio = frequent_values['pages'].values[0]
-            autor_mas_leido = frequent_values['authors'].values[0]
-
-
-            return primer_genero, segundo_genero, paginas_promedio, autor_mas_leido
-        
-        #sc = SparkContext
-        #spark = SparkSession.builder.appName('Recommendations').getOrCreate()
-#
-        #num_ratings = data_ratings["rating"].count()
-        #num_users = data_ratings["user_id"].nunique()
-        #num_movies = data_ratings["book_id"].nunique()
-#
-        #denominator = num_users * num_movies
-#
-        #sparsity = (1.0 - (num_ratings * 1.0) / denominator) * 100
-        #print("The ratings dataframe is ", "%.2f" % sparsity + "% empty.")
-#
-        #sparse_matrix = csr_matrix((data_ratings['rating'], (data_ratings['book_id'], data_ratings['user_id'])))
-#
-        #model = AlternatingLeastSquares(factors=190, regularization=0.01, iterations=10)
-#
-        #transposed_matrix = sparse_matrix.T
-#
-        #model.fit(transposed_matrix)
-#
-        #def recomendacion(user_id):
-        #    user_vector = model.user_factors[user_id]
-        #    scores = model.item_factors.dot(user_vector)
-        #    top_indices = np.argsort(-scores)[:5]
-#
-        #    # Obtener los datos de los libros recomendados
-        #    recomendados = data.loc[top_indices, ['title', 'genero_1', 'genero_2', 'pages', 'average_rating']]
-        #    return recomendados
-#
-        # Uso en Streamlit
-        #if user_number.strip() != '':
-        #    try:
-        #        user_id = int(user_number)
-        #        recomendados = recomendacion(user_id)
-        #        st.write('**Libros recomendados:**')
-        #        for i, book in recomendados.iterrows():
-        #            st.write(f'**{book["title"]}**')
-        #            st.markdown(f'- Género: {book["genero_1"]} - {book["genero_2"]}')
-        #            st.markdown(f'- Páginas: {book["pages"]}')
-        #            st.markdown(f'- Rating: {book["average_rating"]}')
-        #    except ValueError:
-        #        st.warning('Por favor, ingresa un número de usuario válido.')
-
-
-        if user_number.strip() != '':
-            try:
-                user_id = int(user_number)
-                primer_genero, segundo_genero, paginas_promedio, autor_mas_leido = valores_frecuentes_usuario(user_id)
-                st.write(f'Número de usuario: {user_id}')
-                st.markdown(f'- Géneros favoritos: **:blue[{primer_genero} - {segundo_genero}]** ')
-                st.markdown(f'- Autor más leido: **:blue[{autor_mas_leido}]** ')
-                st.markdown(f'- Páginas promedio por libro: **:blue[{paginas_promedio}]** ')
-            except ValueError:
-                st.warning('Por favor, ingresa un número de usuario válido.')
-
-
-
         # modelo similitud
         st.header("Modelo basado en similitud")
         book_titles = data['title'].unique()
@@ -443,6 +367,74 @@ elif selected == 'Encontrá tu libro':
                 st.markdown(f'- Género: {book.genero_1} - {book.genero_2} ')
                 st.markdown(f'- Páginas: {book.pages}')
                 st.markdown(f'- Rating: {book.average_rating}')
+
+
+        label_encoder = LabelEncoder()
+        data_ratings['genero_1_label'] = label_encoder.fit_transform(data_ratings['genero_1'])
+
+        ratings_matrix = data_ratings.pivot_table(index='user_id', columns='book_id', values='rating', fill_value=0)
+
+
+        item_similarity = cosine_similarity(ratings_matrix.T)
+
+        def recommend_books(user_id, num_recommendations=5):
+            user_ratings = ratings_matrix[user_id]
+            similarity_scores = item_similarity.dot(user_ratings)
+            sorted_indices = np.argsort(similarity_scores)[::-1]
+            top_indices = sorted_indices[:num_recommendations]
+            recommended_books = data.loc[top_indices, ['title', 'genero_1', 'genero_2', 'pages', 'average_rating']]
+            return recommended_books
+
+
+        # Uso en Streamlit
+        if user_number.strip() != '':
+            try:
+                user_id = int(user_number)
+                recomendados = recommend_books(user_id)
+                st.write('**Libros recomendados:**')
+                for i, book in recomendados.iterrows():
+                    st.write(f'**{book["title"]}**')
+                    st.markdown(f'- Género: {book["genero_1"]} - {book["genero_2"]}')
+                    st.markdown(f'- Páginas: {book["pages"]}')
+                    st.markdown(f'- Rating: {book["average_rating"]}')
+            except ValueError:
+                st.warning('Por favor, ingresa un número de usuario válido.')
+
+        
+        st.header("Modelo basado en colaboración")
+        user_number = st.text_input("Número de usuario", "")
+
+        merged_data = pd.merge(data_ratings, data, on='book_id')
+        merged_data = merged_data[['user_id', 'genero_1', 'genero_2', 'pages','authors']]
+
+        agg_functions = {'genero_1': lambda x: x.value_counts().index[0],
+                        'genero_2': lambda x: x.value_counts().index[0],
+                        'authors': lambda x: x.value_counts().index[0],
+                        'pages': 'mean'}
+
+        def valores_frecuentes_usuario(user_id):
+            frequent_values = merged_data[merged_data['user_id'] == user_id].groupby('user_id').agg(agg_functions)
+            primer_genero = frequent_values['genero_1'].values[0]
+            segundo_genero = frequent_values['genero_2'].values[0]
+            paginas_promedio = frequent_values['pages'].values[0]
+            autor_mas_leido = frequent_values['authors'].values[0]
+
+
+            return primer_genero, segundo_genero, paginas_promedio, autor_mas_leido
+
+
+        if user_number.strip() != '':
+            try:
+                user_id = int(user_number)
+                primer_genero, segundo_genero, paginas_promedio, autor_mas_leido = valores_frecuentes_usuario(user_id)
+                st.write(f'Número de usuario: {user_id}')
+                st.markdown(f'- Géneros favoritos: **:blue[{primer_genero} - {segundo_genero}]** ')
+                st.markdown(f'- Autor más leido: **:blue[{autor_mas_leido}]** ')
+                st.markdown(f'- Páginas promedio por libro: **:blue[{paginas_promedio}]** ')
+            except ValueError:
+                st.warning('Por favor, ingresa un número de usuario válido.')
+
+
 
 
     if __name__ == '__main__':
