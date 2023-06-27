@@ -106,12 +106,21 @@ elif selected == 'Visualizando los datos':
 
     # libros por anio
     def create_books_per_year_chart():
-        books_per_year = data.loc[data['original_publication_year'] > 1800, 'original_publication_year'].value_counts().sort_index().reset_index()
-        books_per_year.columns = ['Año', 'Cantidad']
+        genero_counts = data['genero_1'].value_counts()
+        generos_principales = ['Romance', 'Nonfiction', 'Fiction']
+        otros_generos = genero_counts[~genero_counts.index.isin(generos_principales)]
 
-        fig = px.line(books_per_year, x='Año', y='Cantidad')
-        fig.update_xaxes(title='Año')
-        fig.update_yaxes(title='Cantidad de libros')
+        otros_count = otros_generos.sum()
+        genero_counts = genero_counts[genero_counts.index.isin(generos_principales)]
+        genero_counts['Otros'] = otros_count
+
+        genero_df = pd.DataFrame({'Genero': genero_counts.index, 'Libros': genero_counts.values})
+        labels = genero_df['Genero']
+        sizes = genero_df['Libros']
+        fig = px.pie(genero_df, values='Libros', names='Genero',
+                    title='Distribución de libros por género', color_discrete_sequence=color_palette)
+
+        fig.update_traces(textinfo='label+percent')
 
         st.plotly_chart(fig)
 
@@ -408,7 +417,7 @@ elif selected == 'Encontrá tu libro':
         book_titles = data['title'].unique()
         selected_book_title = st.text_input('Ingresa un título de libro', value='', key='book_title_input')
 
-        def find_similar_books(book_title, num_similar_books=3):
+        def find_similar_books_titulo(book_title, num_similar_books=3):
             data.reset_index(drop=True, inplace=True)
             book_index = data.loc[data['title'] == book_title].index[0]
             tfidf = TfidfVectorizer()
@@ -424,14 +433,13 @@ elif selected == 'Encontrá tu libro':
         if selected_book_title.strip() not in book_titles:
             st.warning('Por favor, ingresa un título válido.')
         else:
-            similar_books = find_similar_books(selected_book_title, num_similar_books=3)
+            similar_books = find_similar_books_titulo(selected_book_title, num_similar_books=3)
             st.write('**Libros similares:**')
             for i, book in similar_books.iterrows():
                 st.write(f'**{book.title}**')
                 st.markdown(f'- Género: {book.genero_1} - {book.genero_2} ')
                 st.markdown(f'- Páginas: {book.pages}')
                 st.markdown(f'- Rating: {book.average_rating}')
-
 
 
     if __name__ == '__main__':
