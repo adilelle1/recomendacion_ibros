@@ -392,9 +392,9 @@ elif selected == 'Encontrá tu libro':
                 user_id = int(user_number)
                 primer_genero, segundo_genero, paginas_promedio = valores_frecuentes_usuario(user_id)
                 st.write(f'Número de usuario: {user_id}')
-                st.markdown(f'- Primer género favorito: ** {primer_genero} **')
-                st.markdown(f'- Segundo género favorito: ** {segundo_genero} **')
-                st.markdown(f'- Páginas promedio por libro: ** {paginas_promedio} **')
+                st.markdown(f'- Primer género favorito: **{primer_genero}**')
+                st.markdown(f'- Segundo género favorito: **{segundo_genero}**')
+                st.markdown(f'- Páginas promedio por libro: **{paginas_promedio}**')
             except ValueError:
                 st.warning('Por favor, ingresa un número de usuario válido.')
 
