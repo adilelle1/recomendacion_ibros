@@ -16,6 +16,11 @@ from sklearn.metrics.pairwise import cosine_similarity
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import nltk
+from pyspark.sql.functions import col, explode
+from pyspark import SparkContext
+from pyspark.sql import SparkSession
+from scipy.sparse import csr_matrix
+from implicit.als import AlternatingLeastSquares
 
 
 #1. Import
@@ -336,6 +341,50 @@ elif selected == 'Encontrá tu libro':
             paginas_promedio = frequent_values['pages'].values[0]
 
             return primer_genero, segundo_genero, paginas_promedio
+        
+        sc = SparkContext
+        spark = SparkSession.builder.appName('Recommendations').getOrCreate()
+
+        num_ratings = data_ratings["rating"].count()
+        num_users = data_ratings["user_id"].nunique()
+        num_movies = data_ratings["book_id"].nunique()
+
+        denominator = num_users * num_movies
+
+        sparsity = (1.0 - (num_ratings * 1.0) / denominator) * 100
+        print("The ratings dataframe is ", "%.2f" % sparsity + "% empty.")
+
+        sparse_matrix = csr_matrix((data_ratings['rating'], (data_ratings['book_id'], data_ratings['user_id'])))
+
+        model = AlternatingLeastSquares(factors=190, regularization=0.01, iterations=10)
+
+        transposed_matrix = sparse_matrix.T
+
+        model.fit(transposed_matrix)
+
+        def recomendacion(user_id):
+            user_vector = model.user_factors[user_id]
+            scores = model.item_factors.dot(user_vector)
+            top_indices = np.argsort(-scores)[:5]
+
+            # Obtener los datos de los libros recomendados
+            recomendados = data.loc[top_indices, ['title', 'genero_1', 'genero_2', 'pages', 'average_rating']]
+            return recomendados
+
+        # Uso en Streamlit
+        if user_number.strip() != '':
+            try:
+                user_id = int(user_number)
+                recomendados = recomendacion(user_id)
+                st.write('**Libros recomendados:**')
+                for i, book in recomendados.iterrows():
+                    st.write(f'**{book["title"]}**')
+                    st.markdown(f'- Género: {book["genero_1"]} - {book["genero_2"]}')
+                    st.markdown(f'- Páginas: {book["pages"]}')
+                    st.markdown(f'- Rating: {book["average_rating"]}')
+            except ValueError:
+                st.warning('Por favor, ingresa un número de usuario válido.')
+
 
         if user_number.strip() != '':
             try:
