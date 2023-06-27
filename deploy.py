@@ -322,13 +322,11 @@ elif selected == 'Encontrá tu libro':
         user_number = st.text_input("Número de usuario", "")
 
         merged_data = pd.merge(data_ratings, data, on='book_id')
-        merged_data = merged_data[['user_id','genero_1', 'genero_2', 'pages']]
-
+        merged_data = merged_data[['user_id', 'genero_1', 'genero_2', 'pages']]
 
         agg_functions = {'genero_1': lambda x: x.value_counts().index[0],
-                    'genero_2': lambda x: x.value_counts().index[0],
-                    'pages': 'mean'}
-
+                        'genero_2': lambda x: x.value_counts().index[0],
+                        'pages': 'mean'}
 
         def valores_frecuentes_usuario(user_id):
             frequent_values = merged_data[merged_data['user_id'] == user_id].groupby('user_id').agg(agg_functions)
@@ -341,12 +339,13 @@ elif selected == 'Encontrá tu libro':
         if user_number.strip() != '':
             try:
                 user_id = int(user_number)
-                primer_genero, segundo_genero, paginas_promedio = valores_frecuentes_usuario(user_number)
+                primer_genero, segundo_genero, paginas_promedio = valores_frecuentes_usuario(user_id)
                 st.write('Primer genero favorito:', primer_genero)
                 st.write('Segundo genero favorito:', segundo_genero)
                 st.write('Paginas promedio por libro:', paginas_promedio)
             except ValueError:
-                st.warning('Por favor, ingresa un título válido.')
+                st.warning('Por favor, ingresa un número de usuario válido.')
+
 
 
         # modelo similitud
