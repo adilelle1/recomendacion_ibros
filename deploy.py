@@ -329,10 +329,11 @@ elif selected == 'Encontrá tu libro':
         user_number = st.text_input("Número de usuario", "")
 
         merged_data = pd.merge(data_ratings, data, on='book_id')
-        merged_data = merged_data[['user_id', 'genero_1', 'genero_2', 'pages']]
+        merged_data = merged_data[['user_id', 'genero_1', 'genero_2', 'pages','authors']]
 
         agg_functions = {'genero_1': lambda x: x.value_counts().index[0],
                         'genero_2': lambda x: x.value_counts().index[0],
+                        'authors': lambda x: x.value_counts().index[0],
                         'pages': 'mean'}
 
         def valores_frecuentes_usuario(user_id):
@@ -340,8 +341,10 @@ elif selected == 'Encontrá tu libro':
             primer_genero = frequent_values['genero_1'].values[0]
             segundo_genero = frequent_values['genero_2'].values[0]
             paginas_promedio = frequent_values['pages'].values[0]
+            autor_mas_leido = frequent_values['authors'].values[0]
 
-            return primer_genero, segundo_genero, paginas_promedio
+
+            return primer_genero, segundo_genero, paginas_promedio, autor_mas_leido
         
         #sc = SparkContext
         #spark = SparkSession.builder.appName('Recommendations').getOrCreate()
@@ -390,11 +393,11 @@ elif selected == 'Encontrá tu libro':
         if user_number.strip() != '':
             try:
                 user_id = int(user_number)
-                primer_genero, segundo_genero, paginas_promedio = valores_frecuentes_usuario(user_id)
+                primer_genero, segundo_genero, paginas_promedio, autor_mas_leido = valores_frecuentes_usuario(user_id)
                 st.write(f'Número de usuario: {user_id}')
-                st.markdown(f'- Primer género favorito: :blue[{primer_genero}]')
-                st.markdown(f'- Segundo género favorito: :blue[{segundo_genero}')
-                st.markdown(f'- Páginas promedio por libro: :blue[{paginas_promedio}')
+                st.markdown(f'- Géneros favoritos: **:blue[{primer_genero} - {segundo_genero}]** ')
+                st.markdown(f'- Autor más leido: **:blue[{autor_mas_leido}]** ')
+                st.markdown(f'- Páginas promedio por libro: **:blue[{paginas_promedio}]** ')
             except ValueError:
                 st.warning('Por favor, ingresa un número de usuario válido.')
 
