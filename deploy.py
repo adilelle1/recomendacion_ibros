@@ -357,16 +357,20 @@ elif selected == 'Encontrá tu libro':
             return similar_books
 
         # Verificar si el título ingresado existe en el dataset
-        if selected_book_title.strip() not in book_titles:
-            st.warning('Por favor, ingresa un título válido.')
-        else:
-            similar_books = find_similar_books_titulo(selected_book_title, num_similar_books=3)
-            st.write('**Libros similares:**')
-            for i, book in similar_books.iterrows():
-                st.write(f'**{book.title}**')
-                st.markdown(f'- Género: {book.genero_1} - {book.genero_2} ')
-                st.markdown(f'- Páginas: {book.pages}')
-                st.markdown(f'- Rating: {book.average_rating}')
+        try:
+            if selected_book_title.strip() not in book_titles:
+                raise ValueError('Por favor, ingresa un título válido.')
+            else:
+                similar_books = find_similar_books_titulo(selected_book_title, num_similar_books=3)
+                st.write('**Libros similares:**')
+                for i, book in similar_books.iterrows():
+                    st.write(f'**{book.title}**')
+                    st.markdown(f'- Género: {book.genero_1} - {book.genero_2} ')
+                    st.markdown(f'- Páginas: {book.pages}')
+                    st.markdown(f'- Rating: {book.average_rating}')
+        except ValueError as e:
+            st.error(str(e))
+
 
 
                 
