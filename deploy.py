@@ -357,10 +357,9 @@ elif selected == 'Encontrá tu libro':
             return similar_books
 
         # Verificar si el título ingresado existe en el dataset
-        try:
-            if selected_book_title.strip() not in book_titles:
-                raise ValueError('Por favor, ingresa un título válido.')
-            else:
+        
+        if selected_book_title != '': 
+            try:
                 similar_books = find_similar_books_titulo(selected_book_title, num_similar_books=3)
                 st.write('**Libros similares:**')
                 for i, book in similar_books.iterrows():
@@ -368,8 +367,8 @@ elif selected == 'Encontrá tu libro':
                     st.markdown(f'- Género: {book.genero_1} - {book.genero_2} ')
                     st.markdown(f'- Páginas: {book.pages}')
                     st.markdown(f'- Rating: {book.average_rating}')
-        except ValueError as e:
-            st.error(str(e))
+            except ValueError:
+                st.warning('Disculpas, no pudimos encontrar ese título. Por favor ingresa otro.')
 
 
 
@@ -410,7 +409,8 @@ elif selected == 'Encontrá tu libro':
                 st.markdown('Probar el sistema de recomendación basado en colaboración: [Encontrá tu libro](https://colab.research.google.com/drive/14WSdocV44PPXy-ri9e5ixUKB3jYaeaQ_?usp=sharing)')
             except ValueError:
                 st.warning('Por favor, ingresa un número de usuario válido.')
-
+            except IndexError:
+                st.warning('Por favor, ingresa un número de usuario válido.')
 
 
     if __name__ == '__main__':
