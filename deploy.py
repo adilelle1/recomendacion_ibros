@@ -48,7 +48,7 @@ with st.sidebar:
 if selected == 'Home':
     st.title('Sistema de recomendación de libros')
     st.write('Encontramos tu próximo libro favorito.')
-    st.image('libro_sobre_cama.png', width=900)
+    st.image('images/libro_sobre_cama.png', width=900)
 
     st.header('Problemática y objetivos')
     st.write('Ante la abrumadora cantidad de información que se puede encontrar hoy en día en los medios digitales, puede sentirse algo complicado encontrar qué libro leer.')
@@ -245,7 +245,7 @@ elif selected == 'Armado del modelo':
         st.markdown('- Estandarizaron las columnas numéricas que quedaron.')
         st.write('Con el dataset preparado, se aplicó una técnica de KMeans. La cantidad de clusters (k) que se utilizó surgió de utilizar la técnica del codo o "elbow", en la que viendo el gráfico en el que se ve cómo varía la inercia con respecto a la cantidad de clusters, se observó que a partir de 4 clusters la función es más lineal.')
         st.write('Así se logró agrupar en 4 clusters (que se usarán más adelante).')
-        st.image('k-means.png')
+        st.image('images/k-means.png')
 
 
         st.subheader('Nube de palabras')
@@ -308,7 +308,7 @@ elif selected == 'Armado del modelo':
         st.write('Además, utilizamos el trabajo previo realizado con NLP y K-Means donde se encontraron diferentes clusters, los cuales utilizamos para agregar peso a los valores de la matriz.')
         st.write('Por útlimo, utilizamos cosine_similarity de sklearn pasando la matriz con los pesos para calcular la similitud entre los vectores de la matriz.')
         st.write('Los 3 vectores, en este caso libros, con mayor similitud al valor ingresado por el usuario son los que devuelve el sistema de recomendación.')
-        st.image('cosine-similarity-1007790.jpg')
+        st.image('images/cosine-similarity-1007790.jpg')
 
         # Recomendacion por colaboracion
         st.subheader('Sistema de Recomendación usando Modelos de Matrix Factorization')
