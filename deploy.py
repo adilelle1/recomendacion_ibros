@@ -401,7 +401,7 @@ elif selected == 'Encontrá tu libro':
                 st.write(f'Número de usuario: {user_id}')
                 st.markdown(f'- Géneros favoritos: **:blue[{primer_genero} - {segundo_genero}]** ')
                 st.markdown(f'- Autor más leido: **:blue[{autor_mas_leido}]** ')
-                st.markdown(f'- Páginas promedio por libro: **:blue[{paginas_promedio}]** ')
+                st.markdown(f'- Páginas promedio por libro: **:blue[{round(paginas_promedio,2)}]** ')
 
                 st.markdown('<br>', unsafe_allow_html=True)  # Salto de línea
                 st.write('Probar el sistema de recomendación basado en colaboración:')
