@@ -369,7 +369,8 @@ elif selected == 'Encontrá tu libro':
                     st.markdown(f'- Rating: {book.average_rating}')
             except ValueError:
                 st.warning('Disculpas, no pudimos encontrar ese título. Por favor ingresa otro.')
-
+            except IndexError:
+                st.warning('Disculpas, no pudimos encontrar ese título. Por favor ingresa otro.')
 
 
                 
@@ -408,9 +409,9 @@ elif selected == 'Encontrá tu libro':
                 st.write('Probar el sistema de recomendación basado en colaboración:')
                 st.markdown('Probar el sistema de recomendación basado en colaboración: [Encontrá tu libro](https://colab.research.google.com/drive/14WSdocV44PPXy-ri9e5ixUKB3jYaeaQ_?usp=sharing)')
             except ValueError:
-                st.warning('Por favor, ingresa un número de usuario válido.')
+                st.warning('No encontramos el número de usuario, por favor ingresa otro.')
             except IndexError:
-                st.warning('Por favor, ingresa un número de usuario válido.')
+                st.warning('No encontramos el número de usuario, por favor ingresa otro.')
 
 
     if __name__ == '__main__':
