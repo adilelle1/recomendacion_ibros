@@ -1,6 +1,8 @@
 **Sistema de recomendacion de libros**
 
-Este proyecto está pensado para que los usuarios puedan encontrar el libro ideal para ellos. 
+Este proyecto está pensado para que los usuarios puedan encontrar el libro ideal para ellos.
+
+El sistema y el detalle del proceso está desplegado a través del framework Streamlit App: [Recomendacion de libros]https://recomendacionibros.streamlit.app/
 
 En base al perfil del usuario, que esto incluye los géneros que le suelen ser de interes, que longitud tienen los libros que suele leer, autores de preferencia y en base a reviews, a travez de un sistema de recomendación encontramos libros que son de su interés.
 
