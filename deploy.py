@@ -217,10 +217,8 @@ elif selected == 'Armado del modelo':
         st.write('El objetivo principal de esta etapa fue la mejora de las columnas descripción, páginas y género.')
         st.write('La columna descripción originalmente no se encontraba en el dataset, fue necesario hacer una combinación con otras fuentes para obtenerla. Se utilizaron 3 tablas adicionales.')
         st.write('De la concatenación de esas tres tablas se obtuvieron más de 100.000 registros. A partir del título y del código ISBN de Goodreads se cruzó con el dataset original y logramos obtener la descripción, las páginas y el género de 7.000 libros, de los 9.000 que teníamos orginalmente.')
-        
-        st.subheader('Tratamiento de nulos y valores faltantes')
         st.write('Con la combinación de las tablas hecha, continuamos haciendo la limpieza de los datos.')
-        st.write('En primer lugar, trabajamos para rellenar los valores nulos y en los registros que no fue posible decidimos quitarlos del dataset.')
+        st.write('Trabajamos para rellenar los valores nulos y en los registros que no fue posible decidimos quitarlos del dataset.')
         
         st.subheader('Columnas de texto')
         st.write('Luego, encontramos descripciones de libros en diferentes idiomas, decidimos traducir todas al inglés utilizando la librería de Python googletrans.')
