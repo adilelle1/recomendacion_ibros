@@ -341,7 +341,7 @@ elif selected == 'Encontrá tu libro':
         st.header("Modelo basado en similitud")
         book_titles = data['title'].unique()
         #selected_book_title = st.text_input('Ingresa un título de libro', value='', key='book_title_input')
-        selected_book_title = st.selectbox('Elegí un libro', data['title'].unique(), placeholder="Choose an option")
+        selected_book_title = st.selectbox('Elegí un libro',options= data['title'].unique(), placeholder="Choose an option")
 
         def find_similar_books_titulo(book_title, num_similar_books=3):
             data.reset_index(drop=True, inplace=True)
