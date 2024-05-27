@@ -131,7 +131,9 @@ elif selected == 'Visualizando los datos':
         datos_subplot_1 = data.groupby('genero_1')['average_rating'].mean().reset_index()
         fig = go.Figure(data=[go.Bar(x=datos_subplot_1['average_rating'], y=datos_subplot_1['genero_1'], marker=dict(color=color_palette), orientation='h')])
         fig.update_layout(
-            xaxis_title="Puntuación promedio"
+            xaxis_title="Puntuación promedio",
+            yaxis={'categoryorder':'total ascending'}
+            
         )
         st.plotly_chart(fig)
 
@@ -141,7 +143,8 @@ elif selected == 'Visualizando los datos':
         fig = go.Figure(data=[go.Bar(x=datos_subplot_2['pages'], y=datos_subplot_2['genero_1'], marker=dict(color=color_palette), orientation='h')])
 
         fig.update_layout(
-            xaxis_title="Promedio de páginas"
+            xaxis_title="Promedio de páginas",
+            yaxis={'categoryorder':'total ascending'}
         )
         st.plotly_chart(fig)
 
