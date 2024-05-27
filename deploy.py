@@ -341,7 +341,7 @@ elif selected == 'Encontrá tu libro':
         st.header("Modelo basado en similitud")
         book_titles = data['title'].unique()
         #selected_book_title = st.text_input('Ingresa un título de libro', value='', key='book_title_input')
-        selected_book_title = st.selectbox('Elegí un libro', data['title'].unique())
+        selected_book_title = st.selectbox('Elegí un libro', data['title'].unique(), placeholder="Choose an option")
 
         def find_similar_books_titulo(book_title, num_similar_books=3):
             data.reset_index(drop=True, inplace=True)
@@ -373,44 +373,44 @@ elif selected == 'Encontrá tu libro':
 
 
                 
-        st.header("Modelo basado en colaboración")
-        user_number = st.text_input("Número de usuario", "")
+        #st.header("Modelo basado en colaboración")
+        #user_number = st.text_input("Número de usuario", "")
 
-        merged_data = pd.merge(data_ratings, data, on='book_id')
-        merged_data = merged_data[['user_id', 'genero_1', 'genero_2', 'pages','authors']]
+        #merged_data = pd.merge(data_ratings, data, on='book_id')
+        #merged_data = merged_data[['user_id', 'genero_1', 'genero_2', 'pages','authors']]
 
-        agg_functions = {'genero_1': lambda x: x.value_counts().index[0],
-                        'genero_2': lambda x: x.value_counts().index[0],
-                        'authors': lambda x: x.value_counts().index[0],
-                        'pages': 'mean'}
+        #agg_functions = {'genero_1': lambda x: x.value_counts().index[0],
+                        #'genero_2': lambda x: x.value_counts().index[0],
+                        #'authors': lambda x: x.value_counts().index[0],
+                        #'pages': 'mean'}
 
-        def valores_frecuentes_usuario(user_id):
-            frequent_values = merged_data[merged_data['user_id'] == user_id].groupby('user_id').agg(agg_functions)
-            primer_genero = frequent_values['genero_1'].values[0]
-            segundo_genero = frequent_values['genero_2'].values[0]
-            paginas_promedio = frequent_values['pages'].values[0]
-            autor_mas_leido = frequent_values['authors'].values[0]
-
-
-            return primer_genero, segundo_genero, paginas_promedio, autor_mas_leido
+        #def valores_frecuentes_usuario(user_id):
+            #frequent_values = merged_data[merged_data['user_id'] == user_id].groupby('user_id').agg(agg_functions)
+            #primer_genero = frequent_values['genero_1'].values[0]
+            #segundo_genero = frequent_values['genero_2'].values[0]
+            #paginas_promedio = frequent_values['pages'].values[0]
+            #autor_mas_leido = frequent_values['authors'].values[0]
 
 
-        if user_number.strip() != '':
-            try:
-                user_id = int(user_number)
-                primer_genero, segundo_genero, paginas_promedio, autor_mas_leido = valores_frecuentes_usuario(user_id)
-                st.write(f'Número de usuario: {user_id}')
-                st.markdown(f'- Géneros favoritos: **:blue[{primer_genero} - {segundo_genero}]** ')
-                st.markdown(f'- Autor más leido: **:blue[{autor_mas_leido}]** ')
-                st.markdown(f'- Páginas promedio por libro: **:blue[{round(paginas_promedio,2)}]** ')
+            #return primer_genero, segundo_genero, paginas_promedio, autor_mas_leido
 
-                st.markdown('<br>', unsafe_allow_html=True)  # Salto de línea
-                st.write('Probar el sistema de recomendación basado en colaboración:')
-                st.markdown('Probar el sistema de recomendación basado en colaboración: [Encontrá tu libro](https://colab.research.google.com/drive/14WSdocV44PPXy-ri9e5ixUKB3jYaeaQ_?usp=sharing)')
-            except ValueError:
-                st.warning('No encontramos el número de usuario, por favor ingresa otro.')
-            except IndexError:
-                st.warning('No encontramos el número de usuario, por favor ingresa otro.')
+
+        #if user_number.strip() != '':
+         #   try:
+          #      user_id = int(user_number)
+           #     primer_genero, segundo_genero, paginas_promedio, autor_mas_leido = valores_frecuentes_usuario(user_id)
+            #    st.write(f'Número de usuario: {user_id}')
+             #   st.markdown(f'- Géneros favoritos: **:blue[{primer_genero} - {segundo_genero}]** ')
+              #  st.markdown(f'- Autor más leido: **:blue[{autor_mas_leido}]** ')
+               # st.markdown(f'- Páginas promedio por libro: **:blue[{round(paginas_promedio,2)}]** ')
+
+#                st.markdown('<br>', unsafe_allow_html=True)  # Salto de línea
+ #               st.write('Probar el sistema de recomendación basado en colaboración:')
+  #              st.markdown('Probar el sistema de recomendación basado en colaboración: [Encontrá tu libro](https://colab.research.google.com/drive/14WSdocV44PPXy-ri9e5ixUKB3jYaeaQ_?usp=sharing)')
+   #         except ValueError:
+    #            st.warning('No encontramos el número de usuario, por favor ingresa otro.')
+     #       except IndexError:
+      #          st.warning('No encontramos el número de usuario, por favor ingresa otro.')
 
 
     if __name__ == '__main__':
