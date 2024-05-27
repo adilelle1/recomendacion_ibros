@@ -368,6 +368,7 @@ elif selected == 'Encontrá tu libro':
                     st.markdown(f'- Género: {book.genero_1} - {book.genero_2} ')
                     st.markdown(f'- Páginas: {book.pages}')
                     st.markdown(f'- Rating: {book.average_rating}')
+                    st.write('---')
             except ValueError:
                 st.warning('Disculpas, no pudimos encontrar ese título. Por favor ingresa otro.')
             except IndexError:
