@@ -342,8 +342,8 @@ elif selected == 'Encontrá tu libro':
         book_titles = data['title'].unique()
         #selected_book_title = st.text_input('Ingresa un título de libro', value='', key='book_title_input')
         options = ['Elegí un libro'] + data['title'].tolist()
-
-        selected_book_title = st.selectbox(options=options, index=0)
+        st.write(options)
+        #selected_book_title = st.selectbox(options=options, index=0)
 
         def find_similar_books_titulo(book_title, num_similar_books=3):
             data.reset_index(drop=True, inplace=True)
