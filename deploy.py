@@ -343,7 +343,7 @@ elif selected == 'Encontrá tu libro':
         #selected_book_title = st.text_input('Ingresa un título de libro', value='', key='book_title_input')
         options = ['Elegí un libro'] + data['title'].tolist()
         st.write(options)
-        #selected_book_title = st.selectbox(options=options, index=0)
+        selected_book_title = st.selectbox(options=options, index=0)
 
         def find_similar_books_titulo(book_title, num_similar_books=3):
             data.reset_index(drop=True, inplace=True)
@@ -359,7 +359,7 @@ elif selected == 'Encontrá tu libro':
 
         # Verificar si el título ingresado existe en el dataset
         
-        if selected_book_title != '' or selected_book_title != 'Elegí un libro': 
+        if selected_book_title != 'Elegí un libro': 
             try:
                 similar_books = find_similar_books_titulo(selected_book_title, num_similar_books=3)
                 st.write('**Libros similares:**')
